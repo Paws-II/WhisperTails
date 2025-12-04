@@ -9,6 +9,13 @@ app.get("/", (req, res) => {
   res.send({ message: "This is working" });
 });
 
-app.listen(PORT, () => {
-  console.log("Server is running");
+const startServer = async () => {
+  app.listen(PORT, () => {
+    console.log("Server running on port:", PORT);
+  });
+};
+
+startServer().catch((error) => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
 });

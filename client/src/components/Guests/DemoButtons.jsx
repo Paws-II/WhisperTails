@@ -31,9 +31,24 @@ const DemoButtons = () => {
           hover:bg-gray-800
           transition
         "
-        onClick={() => navigate("/signup")}
+        onClick={() => navigate("/signupTrainer")}
       >
-        Sign Up
+        Sign Up (T)
+      </button>
+
+      <button
+        type="button"
+        className="
+          px-5 py-2.5
+          bg-gray-900 text-cyan-400
+          border border-gray-700
+          rounded-md
+          hover:bg-gray-800
+          transition
+        "
+        onClick={() => navigate("/signupOwner")}
+      >
+        Sign Up (O)
       </button>
     </div>
   );

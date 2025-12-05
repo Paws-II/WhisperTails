@@ -1,6 +1,6 @@
 import React from "react";
 
-const Signup = () => {
+const SignupTrainer = () => {
   return (
     <div>
       <h1>This is signup Trianer</h1>
@@ -8,4 +8,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default SignupTrainer;

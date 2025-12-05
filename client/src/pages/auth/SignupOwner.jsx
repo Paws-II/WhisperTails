@@ -1,6 +1,6 @@
 import React from "react";
 
-const Signup = () => {
+const SignupOwner = () => {
   return (
     <div>
       <h1>This is signup Owner</h1>
@@ -8,4 +8,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default SignupOwner;

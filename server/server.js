@@ -5,6 +5,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import db from "./connection/conn.js";
+import passport from "./config/passport.js";
 
 import ownerAuthRoutes from "./routes/ownerAuthRoutes.js";
 import trainerAuthRoutes from "./routes/trainerAuthRoutes.js";
@@ -22,9 +23,23 @@ app.use(
   })
 );
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/api/auth/owner", ownerAuthRoutes);
 app.use("/api/auth/trainer", trainerAuthRoutes);

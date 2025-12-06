@@ -11,9 +11,8 @@ const ownerLoginSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: function () {
-        return this.mode === "manual";
-      },
+      required: false,
+      default: null,
     },
 
     role: {
@@ -36,6 +35,21 @@ const ownerLoginSchema = new mongoose.Schema(
         }
         return null;
       },
+    },
+
+    otp: {
+      type: String,
+      default: null,
+    },
+
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    otpVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

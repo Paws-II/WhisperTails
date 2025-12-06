@@ -223,6 +223,37 @@ const ownerAuthController = {
     }
   },
 
+  getProfileWithAuth: async (req, res) => {
+    try {
+      const ownerProfile = await OwnerProfile.findOne({
+        ownerId: req.userId,
+      }).populate("ownerId", "-password -otp -otpExpiresAt");
+
+      if (!ownerProfile) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Profile not found" });
+      }
+
+      const ownerLogin = await OwnerLogin.findById(req.userId);
+
+      return res.json({
+        success: true,
+        profile: {
+          ...ownerProfile.toObject(),
+          mode: ownerLogin.mode,
+          tempPassword:
+            ownerLogin.mode === "google" ? ownerLogin.tempPassword : null,
+        },
+      });
+    } catch (err) {
+      console.error("Get profile error:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to get profile" });
+    }
+  },
+
   logout: (req, res) => {
     try {
       clearTokenCookie(res);

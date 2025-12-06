@@ -229,6 +229,37 @@ const trainerAuthController = {
     }
   },
 
+  getProfileWithAuth: async (req, res) => {
+    try {
+      const trainerProfile = await TrainerProfile.findOne({
+        trainerId: req.userId,
+      }).populate("trainerId", "-password -otp -otpExpiresAt");
+
+      if (!trainerProfile) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Profile not found" });
+      }
+
+      const trainerLogin = await TrainerLogin.findById(req.userId);
+
+      return res.json({
+        success: true,
+        profile: {
+          ...trainerProfile.toObject(),
+          mode: trainerLogin.mode,
+          tempPassword:
+            trainerLogin.mode === "google" ? trainerLogin.tempPassword : null,
+        },
+      });
+    } catch (err) {
+      console.error("Get profile error:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to get profile" });
+    }
+  },
+
   logout: (req, res) => {
     try {
       clearTokenCookie(res);

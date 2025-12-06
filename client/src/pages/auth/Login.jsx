@@ -138,6 +138,7 @@ const Login = () => {
               <button
                 type="button"
                 className="text-xs text-blue-400 hover:underline"
+                onClick={() => (window.location.href = "/forgot-password")}
               >
                 Forgot Password?
               </button>
@@ -164,11 +165,11 @@ const Login = () => {
 
         <p className="mt-4 text-sm text-center text-gray-400">
           Don't have an account?{" "}
-          <a href="/owner-signup" className="text-blue-400 hover:underline">
+          <a href="/signupOwner" className="text-blue-400 hover:underline">
             Sign up as Owner
           </a>
           {" or "}
-          <a href="/trainer-signup" className="text-blue-400 hover:underline">
+          <a href="/signupTrainer" className="text-blue-400 hover:underline">
             Sign up as Trainer
           </a>
         </p>

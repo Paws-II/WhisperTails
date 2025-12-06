@@ -1,13 +1,38 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import db from "./connection/conn.js";
 
+import ownerAuthRoutes from "./routes/ownerAuthRoutes.js";
+import trainerAuthRoutes from "./routes/trainerAuthRoutes.js";
+import unifiedAuthRoutes from "./routes/unifiedAuthRoutes.js";
+import forgotPasswordRoutes from "./routes/forgotPasswordRoutes.js";
+
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+
+app.use(
+  cors({
+    origin: CLIENT_URL,
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.use("/api/auth/owner", ownerAuthRoutes);
+app.use("/api/auth/trainer", trainerAuthRoutes);
+app.use("/api/auth", unifiedAuthRoutes);
+app.use("/api/auth/forgot-password", forgotPasswordRoutes);
 
 app.get("/", (req, res) => {
-  res.send({ message: "This is working" });
+  res.send({ message: "Pamels API is working" });
 });
 
 const startServer = async () => {
@@ -16,7 +41,7 @@ const startServer = async () => {
   });
 };
 
-startServer().catch((error) => {
-  console.error("Failed to start server:", error);
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
   process.exit(1);
 });

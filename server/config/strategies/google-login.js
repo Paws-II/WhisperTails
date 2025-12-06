@@ -37,17 +37,6 @@ const googleStrategy = new GoogleStrategy(
           return done(null, false, { message: "User data not found" });
         }
 
-        if (
-          existingCheck.loginMode === "manual" &&
-          userLogin.mode === "manual"
-        ) {
-          userLogin.mode = "google";
-          await userLogin.save();
-
-          existingCheck.loginMode = "google";
-          await existingCheck.save();
-        }
-
         return done(null, {
           _id: userLogin._id,
           email: userLogin.email,
@@ -85,7 +74,7 @@ const googleStrategy = new GoogleStrategy(
           avatar,
         });
         await newUserProfile.save();
-      } else if (role === "trainer") {
+      } else {
         newUserLogin = new TrainerLogin({
           email,
           password: hashedPassword,
@@ -131,3 +120,5 @@ const googleStrategy = new GoogleStrategy(
 );
 
 export default googleStrategy;
+
+//remember i have temply removed else if case for trainer via else assuming we have two role for now

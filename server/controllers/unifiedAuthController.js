@@ -1,4 +1,6 @@
+import passport from "passport";
 import bcrypt from "bcryptjs";
+
 import CheckLogin from "../models/loginSystem/CheckLogin.js";
 import OwnerLogin from "../models/loginSystem/OwnerLogin.js";
 import TrainerLogin from "../models/loginSystem/TrainerLogin.js";
@@ -7,7 +9,6 @@ import {
   setTokenCookie,
   clearTokenCookie,
 } from "../config/jwtConfig.js";
-import passport from "passport";
 
 const unifiedAuthController = {
   login: async (req, res) => {
@@ -73,6 +74,7 @@ const unifiedAuthController = {
           _id: userLogin._id,
           email: userLogin.email,
           role: checkLogin.role,
+          mode: userLogin.mode,
         },
       });
     } catch (error) {

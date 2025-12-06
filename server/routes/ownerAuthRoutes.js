@@ -16,7 +16,7 @@ router.get(
   "/profile",
   authenticateJWT,
   authorizeRole("owner"),
-  ownerAuthController.getProfile
+  ownerAuthController.getProfileWithAuth
 );
 
 router.post("/logout", authenticateJWT, ownerAuthController.logout);

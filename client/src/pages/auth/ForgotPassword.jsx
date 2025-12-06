@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
+import RequestOtp from "../../components/auth/RequestOtp";
+import VerifyOTP from "../../components/auth/VerifyOTP";
+import ResetPassword from "../../components/auth/ResetPassword";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 

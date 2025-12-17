@@ -22,16 +22,16 @@ const sendOTPEmail = async (
     let subject, greeting, message;
 
     if (type === "verification") {
-      subject = "Verify Your Email - Pamels";
-      greeting = "Thank you for signing up with Pamels.";
+      subject = "Verify Your Email - WhisperTails";
+      greeting = "Thank you for signing up with WhisperTails.";
       message =
         "To complete your registration, please use the following OTP code:";
     } else if (type === "password-reset") {
-      subject = "Reset Your Password - Pamels";
+      subject = "Reset Your Password - WhisperTails";
       greeting = "We received a request to reset your password.";
       message = "Use the following OTP code to reset your password:";
     } else {
-      subject = "Your OTP Code - Pamels";
+      subject = "Your OTP Code - WhisperTails";
       greeting = "Hello!";
       message = "Please use the following OTP code:";
     }
@@ -53,7 +53,7 @@ const sendOTPEmail = async (
       <body>
         <div class="container">
           <div class="header">
-            <h1>Pamels</h1>
+            <h1>WhisperTails</h1>
           </div>
           <div class="content">
             <h2>Hello ${name}!</h2>
@@ -68,7 +68,7 @@ const sendOTPEmail = async (
             <p>If you didn't request this code, please ignore this email.</p>
             
             <div class="footer">
-              <p>© ${new Date().getFullYear()} Pamels. All rights reserved.</p>
+              <p>© ${new Date().getFullYear()} WhisperTails. All rights reserved.</p>
             </div>
           </div>
         </div>

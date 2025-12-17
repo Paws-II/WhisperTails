@@ -50,7 +50,7 @@ app.use("/api/auth", unifiedAuthRoutes);
 app.use("/api/auth/forgot-password", forgotPasswordRoutes);
 
 app.get("/", (req, res) => {
-  res.send({ message: "Pamels API is working" });
+  res.send({ message: "WhisperTails API is working" });
 });
 
 const startServer = async () => {

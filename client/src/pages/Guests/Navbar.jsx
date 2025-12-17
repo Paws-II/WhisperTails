@@ -1,5 +1,6 @@
 import React from "react";
 import { Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ isScrolled, mobileMenuOpen, setMobileMenuOpen }) => {
   const navbarLinks = [
@@ -9,6 +10,13 @@ const Navbar = ({ isScrolled, mobileMenuOpen, setMobileMenuOpen }) => {
     { text: "Donate", link: "#donate" },
     { text: "Resources", link: "#resources" },
   ];
+
+  const navigate = useNavigate();
+
+  const handleNavigate = (path) => {
+    setMobileMenuOpen(false);
+    navigate(path);
+  };
 
   return (
     <nav
@@ -20,27 +28,36 @@ const Navbar = ({ isScrolled, mobileMenuOpen, setMobileMenuOpen }) => {
     >
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="text-3xl font-bold bg-gradient-to-r from-white to-[#bfc0d1] bg-clip-text text-transparent">
+          <div
+            onClick={() => handleNavigate("/")}
+            className="text-3xl font-bold bg-linear-to-r from-white to-[#bfc0d1] bg-clip-text text-transparent cursor-pointer"
+          >
             Pamels
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
             {navbarLinks.map((item) => (
-              <a
+              <button
                 key={item.link}
-                href={item.link}
-                className="hover:text-white transition-colors duration-300"
+                onClick={() => handleNavigate(item.link)}
+                className="hover:text-white transition-colors duration-300 cursor-pointer"
               >
                 {item.text}
-              </a>
+              </button>
             ))}
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <button className="px-6 py-2 border-2 border-white/40 rounded-full hover:bg-white/10 transition-all duration-300">
+            <button
+              onClick={() => handleNavigate("/login")}
+              className="px-6 py-2 border-2 border-white/40 rounded-full hover:bg-white/10 transition-all duration-300"
+            >
               Login
             </button>
-            <button className="px-6 py-2 bg-white text-slate-900 rounded-full hover:shadow-lg hover:shadow-white/30 transition-all duration-300">
+            <button
+              onClick={() => handleNavigate("/signup")}
+              className="px-6 py-2 bg-white text-slate-900 rounded-full hover:shadow-lg hover:shadow-white/30 transition-all duration-300"
+            >
               Sign Up
             </button>
           </div>
@@ -56,19 +73,26 @@ const Navbar = ({ isScrolled, mobileMenuOpen, setMobileMenuOpen }) => {
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 space-y-4">
             {navbarLinks.map((item) => (
-              <a
+              <button
                 key={item.link}
-                href={item.link}
-                className="block hover:text-white transition-colors duration-300"
+                onClick={() => handleNavigate(item.link)}
+                className="block text-left hover:text-white transition-colors duration-300"
               >
                 {item.text}
-              </a>
+              </button>
             ))}
+
             <div className="flex flex-col space-y-3 pt-4">
-              <button className="px-6 py-2 border-2 border-white/40 rounded-full hover:bg-white/10 transition-all duration-300">
+              <button
+                onClick={() => handleNavigate("/login")}
+                className="px-6 py-2 border-2 border-white/40 rounded-full hover:bg-white/10 transition-all duration-300"
+              >
                 Login
               </button>
-              <button className="px-6 py-2 bg-white text-slate-900 rounded-full hover:shadow-lg transition-all duration-300">
+              <button
+                onClick={() => handleNavigate("/signup")}
+                className="px-6 py-2 bg-white text-slate-900 rounded-full hover:shadow-lg transition-all duration-300"
+              >
                 Sign Up
               </button>
             </div>

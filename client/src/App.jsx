@@ -1,18 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Hero from "./pages/Guests/Hero";
 import Navbar from "./pages/Guests/Navbar";
 
-const App = () => {
-  return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-6 relative">
-      <h1 className="text-4xl font-semibold text-blue-400 mb-8">
-        This is working!.....
-      </h1>
+const Home = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-      <div className="w-fit max-w-4xl bg-gray-800 border border-gray-700 rounded-xl p-4 shadow-xl">
-        <Navbar />
-      </div>
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div>
+      <Navbar
+        isScrolled={isScrolled}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
+      />
+      <Hero />
     </div>
   );
 };
 
-export default App;
+export default Home;

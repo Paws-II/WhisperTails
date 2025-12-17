@@ -2,47 +2,47 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import HeroNarrative from "../../components/Guests/Hero/HeroNarrative";
 import HeroShowcase from "../../components/Guests/Hero/HeroShowcase";
+import dog from "../../assets/Guests/animals/dog.png";
+import cat from "../../assets/Guests/animals/cat.png";
+import bunny from "../../assets/Guests/animals/bunny.png";
+import otter from "../../assets/Guests/animals/otter.png";
+import panda from "../../assets/Guests/animals/panda.png";
 
 const HERO_SLIDES = [
   {
     id: 1,
-    image:
-      "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800&h=900&fit=crop",
+    image: dog,
     bgGradient:
       "radial-gradient(circle at center, #ffb07c 0%, #b35c27 60%, #5a2f12 100%)",
-    textGradient: "linear-gradient(to right, #ffb07c, #ff8c4f, #b35c27)",
+    textGradient: "linear-gradient(to right, #ffd3b0, #ff9c63, #ffcfad)",
   },
   {
     id: 2,
-    image:
-      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=900&fit=crop",
+    image: cat,
     bgGradient:
       "radial-gradient(circle at center, #a067ff 0%, #4c0f80 60%, #23003f 100%)",
-    textGradient: "linear-gradient(to right, #a067ff, #8b4cff, #6a30cc)",
+    textGradient: "linear-gradient(to right, #c7a6ff, #a978ff, #e0ccff)",
   },
   {
     id: 3,
-    image:
-      "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&h=900&fit=crop",
+    image: otter,
     bgGradient:
       "radial-gradient(circle at center, #89d6ff 0%, #1c5169 60%, #0c1f27 100%)",
-    textGradient: "linear-gradient(to right, #89d6ff, #4ea8d4, #1c5169)",
+    textGradient: "linear-gradient(to right, #bfe9ff, #7cc9f0, #d8f2ff)",
   },
   {
     id: 4,
-    image:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&h=900&fit=crop",
+    image: panda,
     bgGradient:
       "radial-gradient(circle at center, #ff86a0 0%, #7c1130 60%, #3d0a19 100%)",
-    textGradient: "linear-gradient(to right, #ff86a0, #ff5c7c, #d42f56)",
+    textGradient: "linear-gradient(to right, #ffc0cb, #ff7b96, #ffd6de)",
   },
   {
     id: 5,
-    image:
-      "https://images.unsplash.com/photo-1568572933382-74d440642117?w=800&h=900&fit=crop",
+    image: bunny,
     bgGradient:
       "radial-gradient(circle at center, #7cffb2 0%, #1e7f4f 55%, #0b2e1d 100%)",
-    textGradient: "linear-gradient(to right, #7cffb2, #4dff9a, #1e7f4f)",
+    textGradient: "linear-gradient(to right, #b8ffd8, #6dffb0, #d9ffec)",
   },
 ];
 
@@ -351,7 +351,7 @@ const Hero = () => {
       <section className="relative min-h-screen flex items-center pt-20 px-6 overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-br from-black/20 via-transparent to-black/30"></div>
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-26 items-center relative z-10">
           <HeroNarrative titleRef={titleRef} />
 
           <HeroShowcase

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Hero from "./pages/Guests/Hero";
 import Navbar from "./pages/Guests/Navbar";
+import Demo from "./pages/Guests/Demo";
 
 const Home = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,6 +23,7 @@ const Home = () => {
         setMobileMenuOpen={setMobileMenuOpen}
       />
       <Hero />
+      <Demo />
     </div>
   );
 };

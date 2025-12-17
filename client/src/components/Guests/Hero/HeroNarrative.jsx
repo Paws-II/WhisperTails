@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const HeroNarrative = ({ titleRef }) => {
   const heroStats = [
@@ -9,79 +9,113 @@ const HeroNarrative = ({ titleRef }) => {
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="inline-block">
-        <div
-          className="
-            flex items-center space-x-2
-            rounded-full
-            px-4 py-2
-            bg-white/10 backdrop-blur-sm
-            border border-white/20
-          "
-        >
-          <Sparkles size={20} className="text-white" />
-          <span className="text-sm">Trusted by 10,000+ pet lovers</span>
-        </div>
-      </div>
-
-      <h1 className="text-6xl md:text-7xl font-bold leading-tight">
-        <span ref={titleRef} className="bg-clip-text text-transparent">
-          Pamels
-        </span>
+    <div className="space-y-10">
+      <h1
+        ref={titleRef}
+        className="
+          relative
+          pb-6
+          text-6xl md:text-7xl lg:text-8xl
+          leading-[1.05]
+          bg-clip-text text-transparent
+          drop-shadow-[0_6px_24px_rgba(0,0,0,0.35)]
+        "
+        style={{
+          fontFamily: "'Allura','Pacifico',cursive",
+          fontWeight: 600,
+          letterSpacing: "-0.015em",
+          WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
+          textShadow: "0 10px 28px rgba(0,0,0,0.35)",
+        }}
+      >
+        WhisperTails
       </h1>
 
-      <p className="text-xl leading-relaxed text-white/90">
-        A modern platform to adopt, care, and connect with pets — promoting
-        responsible ownership and giving every animal a loving home.
-      </p>
+      <div
+        className="pl-2 text-sm tracking-[0.35em] text-white/50"
+        style={{
+          fontFamily: "'Noto Serif JP','Cormorant Garamond',serif",
+          fontWeight: 300,
+        }}
+      >
+        ウィスパ テイル
+      </div>
 
-      <div className="flex flex-wrap gap-4">
+      <div
+        className="pl-1 text-2xl md:text-3xl text-white/85"
+        style={{
+          fontFamily: "'Cormorant Garamond','Georgia',serif",
+          fontStyle: "italic",
+          letterSpacing: "0.02em",
+        }}
+      >
+        Where quiet hearts find a home
+      </div>
+
+      <div className="flex flex-wrap gap-4 pt-4">
         <button
           className="
-            group
-            flex items-center space-x-2
-            rounded-full
-            px-8 py-4
-            font-semibold
+            group relative flex items-center gap-2
+            rounded-full px-8 py-4
             bg-white text-slate-900
             transition-all duration-300
-            transform hover:scale-105
-            hover:shadow-2xl hover:shadow-white/30
+            hover:scale-[1.03]
+            hover:shadow-[0_10px_40px_rgba(255,255,255,0.25)]
+            active:scale-[0.98]
+            overflow-hidden
           "
+          style={{ fontFamily: "'Inter',sans-serif" }}
         >
-          <span>Browse Pets</span>
+          <span className="relative z-10">Browse Pets</span>
           <ArrowRight
-            size={20}
-            className="transition-transform group-hover:translate-x-1"
+            size={18}
+            className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
         </button>
 
         <button
           className="
-            rounded-full
-            px-8 py-4
-            font-semibold
-            border-2 border-white/40
+            rounded-full px-8 py-4
+            border border-white/30
+            text-white/85
+            backdrop-blur-sm
             transition-all duration-300
-            transform hover:scale-105
             hover:bg-white/10
+            hover:border-white/50
+            hover:scale-[1.03]
+            active:scale-[0.98]
           "
+          style={{ fontFamily: "'Inter',sans-serif" }}
         >
           Get Started
         </button>
       </div>
 
-      <div className="flex items-center space-x-8 pt-4">
+      <div className="flex items-center gap-10 pt-8">
         {heroStats.map((stat, index) => (
           <React.Fragment key={stat.title}>
             <div>
-              <div className="text-3xl font-bold text-white">{stat.number}</div>
-              <div className="text-sm text-white/70">{stat.title}</div>
+              <div
+                className="text-3xl text-white"
+                style={{
+                  fontFamily: "'Inter',sans-serif",
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {stat.number}
+              </div>
+              <div
+                className="mt-1 text-xs tracking-widest text-white/60 uppercase"
+                style={{ fontFamily: "'Inter',sans-serif" }}
+              >
+                {stat.title}
+              </div>
             </div>
 
             {index !== heroStats.length - 1 && (
-              <div className="w-px h-12 bg-white/30" />
+              <div className="w-px h-10 bg-linear-to-b from-transparent via-white/25 to-transparent" />
             )}
           </React.Fragment>
         ))}

@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import NavbarShelter from "../../components/Shelters/NavbarShelter";
 import FullPageLoader from "../../Common/FullPageLoader";
 import FullPageError from "../../Common/FullPageError";
+import defaultAvatar from "../../assets/Shelter/default-shelter.png";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -144,7 +145,15 @@ const ShelterDashboard = () => {
     }
   };
 
-  if (loading) return <FullPageLoader />;
+  if (loading) {
+    return (
+      <FullPageLoader
+        title="Loading Shelter Dashboard…"
+        subtitle="Preparing adoption requests and meetings"
+      />
+    );
+  }
+
   if (error) return <FullPageError message={error} onRetry={fetchAllData} />;
   const shelterData = {
     name: profile?.name || "Shelter",
@@ -154,9 +163,11 @@ const ShelterDashboard = () => {
     specialization: profile?.specialization || "General Care",
     experience: profile?.experience || 0,
     avatar:
-      profile?.avatar && profile.avatar !== "something(url)"
+      profile?.avatar &&
+      profile.avatar !== "something(url)" &&
+      profile.avatar.trim() !== ""
         ? profile.avatar
-        : null,
+        : defaultAvatar,
   };
 
   return (
@@ -180,15 +191,11 @@ const ShelterDashboard = () => {
                   <div className="relative">
                     <div className="absolute inset-0 rounded-full bg-white/10 blur-xl" />
                     <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-[#31323e] bg-[#4a5568]">
-                      {shelterData.avatar ? (
-                        <img
-                          src={shelterData.avatar}
-                          alt="Shelter"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <Shield size={40} className="text-white" />
-                      )}
+                      <img
+                        src={shelterData.avatar}
+                        alt="Shelter"
+                        className="h-full w-full object-cover"
+                      />
                     </div>
                   </div>
                 </div>

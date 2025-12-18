@@ -5,7 +5,6 @@ import {
   AlertCircle,
   Bell,
   Calendar,
-  Heart,
   Mail,
   MapPin,
   Package,
@@ -15,6 +14,7 @@ import {
 
 import Navbar from "../../components/Owners/NavbarOwner";
 import FullPageLoader from "../../Common/FullPageLoader";
+import defaultAvatar from "../../assets/Owner/default-owner.png";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -68,16 +68,26 @@ const OwnerDashboard = () => {
     address: profile?.address || "Not set",
     bio: profile?.bio || "No bio available",
     avatar:
-      profile?.avatar && profile.avatar !== "something(url)"
+      profile?.avatar &&
+      profile.avatar !== "something(url)" &&
+      profile.avatar.trim() !== ""
         ? profile.avatar
-        : null,
+        : defaultAvatar,
+
     tempPassword:
       profile?.mode === "google" && profile?.tempPassword
         ? profile.tempPassword
         : null,
   };
 
-  if (loading) return <FullPageLoader />;
+  if (loading) {
+    return (
+      <FullPageLoader
+        title="Loading Owner Dashboard…"
+        subtitle="Fetching your pets, requests, and profile"
+      />
+    );
+  }
 
   if (error) return <FullPageError message={error} onAction={fetchProfile} />;
 

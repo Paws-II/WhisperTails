@@ -418,8 +418,8 @@ const OwnerUpdateProfile = () => {
         <div className="mx-auto max-w-6xl p-4 md:p-6 lg:p-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#60519b] via-[#7d6ab8] to-[#60519b] p-8 md:p-10 shadow-2xl shadow-[#60519b]/20">
-              <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+            <div className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-[#60519b] via-[#7d6ab8] to-[#60519b] p-8 md:p-10 shadow-2xl shadow-[#60519b]/20">
+              <div className="absolute inset-0 animate-pulse bg-linear-to-r from-transparent via-white/5 to-transparent" />
               <div className="relative z-10">
                 <h1 className="mb-3 text-3xl font-bold text-white md:text-4xl tracking-tight">
                   Update Profile
@@ -438,7 +438,7 @@ const OwnerUpdateProfile = () => {
                 onClick={() => setActiveTab("personal")}
                 className={`px-8 py-3 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 ${
                   activeTab === "personal"
-                    ? "bg-gradient-to-r from-[#60519b] to-[#7d6ab8] text-white shadow-lg shadow-[#60519b]/40 scale-105"
+                    ? "bg-linear-to-r from-[#60519b] to-[#7d6ab8] text-white shadow-lg shadow-[#60519b]/40 scale-105"
                     : "text-[#bfc0d1] hover:bg-[#3a3b47] hover:text-white hover:scale-105"
                 }`}
               >
@@ -448,7 +448,7 @@ const OwnerUpdateProfile = () => {
                 onClick={() => setActiveTab("security")}
                 className={`px-8 py-3 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 ${
                   activeTab === "security"
-                    ? "bg-gradient-to-r from-[#60519b] to-[#7d6ab8] text-white shadow-lg shadow-[#60519b]/40 scale-105"
+                    ? "bg-linear-to-r from-[#60519b] to-[#7d6ab8] text-white shadow-lg shadow-[#60519b]/40 scale-105"
                     : "text-[#bfc0d1] hover:bg-[#3a3b47] hover:text-white hover:scale-105"
                 }`}
               >
@@ -468,8 +468,8 @@ const OwnerUpdateProfile = () => {
 
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                   <div className="relative">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#60519b] to-[#7d6ab8] blur-lg opacity-50" />
-                    <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-[#31323e] bg-gradient-to-br from-[#60519b] to-[#7d6ab8]">
+                    <div className="absolute inset-0 rounded-full bg-linear-to-br from-[#60519b] to-[#7d6ab8] blur-lg opacity-50" />
+                    <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-[#31323e] bg-linear-to-br from-[#60519b] to-[#7d6ab8]">
                       <img
                         src={avatarPreview || profile.avatar}
                         alt="Avatar"
@@ -501,7 +501,7 @@ const OwnerUpdateProfile = () => {
                         <button
                           onClick={handleAvatarUpload}
                           disabled={uploadingAvatar}
-                          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-linear-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {uploadingAvatar ? (
                             <>
@@ -669,7 +669,7 @@ const OwnerUpdateProfile = () => {
                   <button
                     onClick={handleSaveProfile}
                     disabled={!isProfileChanged() || saving}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     {saving ? (
                       <>
@@ -695,7 +695,7 @@ const OwnerUpdateProfile = () => {
               {profile.mode === "google" &&
                 !profile.passwordChanged &&
                 profile.tempPassword && (
-                  <div className="rounded-xl border border-red-500/30 bg-gradient-to-r from-red-500/15 via-red-500/10 to-transparent p-6">
+                  <div className="rounded-xl border border-red-500/30 bg-linear-to-r from-red-500/15 via-red-500/10 to-transparent p-6">
                     <div className="flex gap-4">
                       <AlertCircle
                         size={24}
@@ -741,7 +741,7 @@ const OwnerUpdateProfile = () => {
                       <button
                         onClick={handleRequestOTP}
                         disabled={sendingOtp}
-                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {sendingOtp ? (
                           <>
@@ -778,7 +778,7 @@ const OwnerUpdateProfile = () => {
                         <button
                           onClick={handleVerifyOTP}
                           disabled={verifyingOtp || !securityForm.otp}
-                          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {verifyingOtp ? (
                             <>
@@ -902,7 +902,7 @@ const OwnerUpdateProfile = () => {
                             !securityForm.newPassword ||
                             !securityForm.confirmPassword
                           }
-                          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-[#60519b] to-[#7d6ab8] text-white text-sm font-semibold tracking-wide hover:shadow-lg hover:shadow-[#60519b]/30 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {saving ? (
                             <>

@@ -16,6 +16,8 @@ import unifiedAuthRoutes from "./routes/auth/unifiedAuthRoutes.js";
 import forgotPasswordRoutes from "./routes/auth/forgotPasswordRoutes.js";
 import ownerProfileRoutes from "./routes/owner/ownerProfile.js";
 import ownerSecurityRoutes from "./routes/owner/ownerSecurity.js";
+import shelterProfileRoutes from "./routes/shelter/shelterProfile.js";
+import shelterDashboardRoutes from "./routes/shelter/shelterDashboard.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -54,6 +56,8 @@ app.use("/api/auth", unifiedAuthRoutes);
 app.use("/api/auth/forgot-password", forgotPasswordRoutes);
 app.use("/api/owner/profile", ownerProfileRoutes);
 app.use("/api/owner/security", ownerSecurityRoutes);
+app.use("/api/shelter/profile", shelterProfileRoutes);
+app.use("/api/shelter/dashboard", shelterDashboardRoutes);
 
 app.get("/", (req, res) => {
   res.send({ message: "WhisperTails API is working" });

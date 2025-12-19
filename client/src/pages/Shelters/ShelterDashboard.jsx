@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSocket } from "../../../hooks/useSocket";
 import axios from "axios";
 import {
   Heart,
@@ -37,92 +38,53 @@ const ShelterDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { on } = useSocket();
 
   useEffect(() => {
     fetchAllData();
+  }, []);
+
+  useEffect(() => {
+    fetchAllData();
+
+    const unsubProfile = on("profile:updated", (data) => {
+      setProfile(data.profile);
+    });
+
+    const unsubStats = on("capacity:updated", () => {
+      fetchAllData();
+    });
+
+    return () => {
+      unsubProfile();
+      unsubStats();
+    };
   }, []);
 
   const fetchAllData = async () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.get(`${API_URL}/api/auth/shelter/profile`, {
+      const response = await axios.get(`${API_URL}/api/shelter/dashboard`, {
         withCredentials: true,
       });
 
       if (response.data.success) {
-        setProfile(response.data.profile);
+        const {
+          profile,
+          stats,
+          recentApplications,
+          upcomingCheckups,
+          scheduledMeetings,
+          recentlyAddedPets,
+        } = response.data.data;
 
-        setStats({
-          totalPets: 47,
-          pendingApplications: 12,
-          scheduledCheckups: 8,
-          activeChats: 23,
-        });
-
-        setApplications([
-          {
-            id: 1,
-            petName: "Luna",
-            applicantName: "Sarah Johnson",
-            status: "pending",
-            date: "2025-12-18",
-          },
-          {
-            id: 2,
-            petName: "Max",
-            applicantName: "John Smith",
-            status: "approved",
-            date: "2025-12-17",
-          },
-          {
-            id: 3,
-            petName: "Bella",
-            applicantName: "Emma Davis",
-            status: "pending",
-            date: "2025-12-16",
-          },
-        ]);
-
-        setCheckups([
-          {
-            id: 1,
-            petName: "Rocky",
-            type: "Vaccination",
-            date: "2025-12-20",
-            time: "10:00 AM",
-          },
-          {
-            id: 2,
-            petName: "Daisy",
-            type: "Health Check",
-            date: "2025-12-21",
-            time: "2:30 PM",
-          },
-        ]);
-
-        setMeetings([
-          {
-            id: 1,
-            title: "Adoption Interview",
-            ownerName: "Michael Brown",
-            date: "2025-12-19",
-            time: "3:00 PM",
-          },
-          {
-            id: 2,
-            title: "Pet Training Session",
-            ownerName: "Lisa Anderson",
-            date: "2025-12-22",
-            time: "11:00 AM",
-          },
-        ]);
-
-        setPets([
-          { id: 1, name: "Charlie", breed: "Golden Retriever", age: 2 },
-          { id: 2, name: "Milo", breed: "Beagle", age: 1 },
-          { id: 3, name: "Lucy", breed: "Siamese Cat", age: 3 },
-        ]);
+        setProfile(profile);
+        setStats(stats);
+        setApplications(recentApplications);
+        setCheckups(upcomingCheckups);
+        setMeetings(scheduledMeetings);
+        setPets(recentlyAddedPets);
       }
     } catch (err) {
       console.error("Data fetch error:", err);

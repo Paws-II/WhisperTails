@@ -62,7 +62,7 @@ const NavbarShelter = ({ onLogout }) => {
       title: "Analytics & Settings",
       links: [
         { path: "/stats", icon: TrendingUp, label: "Stats" },
-        { path: "/shelter-settings", icon: Settings, label: "Settings" },
+        { path: "/shelter-update-profile", icon: Settings, label: "Settings" },
       ],
     },
   ];

@@ -15,6 +15,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 import Signup from "./pages/auth/Signup.jsx";
 import OwnerUpdateProfile from "./pages/Owners/OwnerUpdateProfile.jsx";
 import ShelterUpdateProfile from "./pages/Shelters/ShelterUpdateProfile.jsx";
+import ShelterPetAdd from "./pages/Shelters/ShelterPetAdd.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -39,6 +40,8 @@ createRoot(document.getElementById("root")).render(
             path="/shelter-update-profile"
             element={<ShelterUpdateProfile />}
           />
+
+          <Route path="/add-pet" element={<ShelterPetAdd />} />
         </Routes>
       </BrowserRouter>
     </SocketProvider>

@@ -20,6 +20,7 @@ import shelterProfileRoutes from "./routes/shelter/shelterProfile.js";
 import shelterDashboardRoutes from "./routes/shelter/shelterDashboard.js";
 import shelterSecurityRoutes from "./routes/shelter/shelterSecurity.js";
 import notificationRoutes from "./routes/notifications/notificationRoutes.js";
+import petRoutes from "./routes/shelter/pet.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -62,6 +63,7 @@ app.use("/api/shelter/profile", shelterProfileRoutes);
 app.use("/api/shelter/dashboard", shelterDashboardRoutes);
 app.use("/api/shelter/security", shelterSecurityRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/shelter/pets", petRoutes);
 
 app.get("/", (req, res) => {
   res.send({ message: "WhisperTails API is working" });
@@ -70,7 +72,8 @@ app.get("/", (req, res) => {
 const startServer = async () => {
   const httpServer = createServer(app);
 
-  initializeSocket(httpServer);
+  const io = initializeSocket(httpServer);
+  app.locals.io = io;
 
   httpServer.listen(PORT, () => {
     console.log("Server running on port:", PORT);

@@ -18,6 +18,7 @@ import ownerProfileRoutes from "./routes/owner/ownerProfile.js";
 import ownerSecurityRoutes from "./routes/owner/ownerSecurity.js";
 import shelterProfileRoutes from "./routes/shelter/shelterProfile.js";
 import shelterDashboardRoutes from "./routes/shelter/shelterDashboard.js";
+import shelterSecurityRoutes from "./routes/shelter/shelterSecurity.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -58,6 +59,7 @@ app.use("/api/owner/profile", ownerProfileRoutes);
 app.use("/api/owner/security", ownerSecurityRoutes);
 app.use("/api/shelter/profile", shelterProfileRoutes);
 app.use("/api/shelter/dashboard", shelterDashboardRoutes);
+app.use("/api/shelter/security", shelterSecurityRoutes);
 
 app.get("/", (req, res) => {
   res.send({ message: "WhisperTails API is working" });

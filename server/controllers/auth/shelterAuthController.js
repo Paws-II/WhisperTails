@@ -250,6 +250,7 @@ const shelterAuthController = {
           mode: shelterLogin.mode,
           tempPassword:
             shelterLogin.mode === "google" ? shelterLogin.tempPassword : null,
+          passwordChanged: shelterLogin.passwordChanged || false,
         },
       });
     } catch (err) {

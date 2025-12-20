@@ -86,8 +86,8 @@ const adoptionApplicationSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "withdrawn"],
-      default: "pending",
+      enum: ["submitted", "review", "approved", "rejected", "withdrawn"],
+      default: "submitted",
       index: true,
     },
 

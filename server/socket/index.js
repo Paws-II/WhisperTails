@@ -45,7 +45,6 @@ export const initializeSocket = (httpServer) => {
   });
 
   global.io = io;
-
   console.log("✓ Socket.IO initialized successfully");
   return io;
 };

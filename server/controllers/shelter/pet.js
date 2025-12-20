@@ -3,6 +3,7 @@ import ShelterProfile from "../../models/profiles/ShelterProfile.js";
 import Notification from "../../models/notifications/Notification.js";
 import { uploadToCloudinary } from "../../services/cloudinary.service.js";
 import { broadcastDashboardUpdate } from "../../socket/handlers/dashboardHandler.js";
+import CheckPetStatus from "../../models/petStatus/CheckPetStatus.js";
 
 const petController = {
   createPet: async (req, res) => {
@@ -108,6 +109,13 @@ const petController = {
       });
 
       await newPet.save();
+
+      await CheckPetStatus.create({
+        petId: newPet._id,
+        petName: newPet.name,
+        activeOwnerId: null,
+        applicationId: null,
+      });
 
       shelter.currentPets += 1;
       await shelter.save();
@@ -377,6 +385,8 @@ const petController = {
 
       pet.isActive = false;
       await pet.save();
+
+      await CheckPetStatus.findOneAndDelete({ petId: pet._id });
 
       const shelter = await ShelterProfile.findOne({ shelterId });
       if (shelter && shelter.currentPets > 0) {

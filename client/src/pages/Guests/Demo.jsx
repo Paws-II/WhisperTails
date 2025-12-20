@@ -31,7 +31,7 @@ const Demo = () => {
       {/* Card */}
       <section
         className="mx-auto w-[min(90%,520px)] rounded-2xl p-12 shadow-[0_30px_80px_rgba(0,0,0,0.45)]
-                   bg-gradient-to-b from-[#60519b] to-[#31323e]"
+                   bg-linear-to-b from-[#60519b] to-[#31323e]"
         style={{
           transform: `translateY(${Math.max(0, 300 - scrollY) * 0.2}px)`,
         }}

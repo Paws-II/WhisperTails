@@ -113,22 +113,26 @@ const ShelterPetView = () => {
           </div>
 
           <div className="mb-8 rounded-xl border border-[#4a5568]/20 bg-[#31323e] p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-4">
                 <div className="rounded-lg bg-[#4a5568] p-3">
-                  <Heart size={24} className="text-white" />
+                  <Heart size={22} className="text-white" />
                 </div>
+
                 <div>
-                  <p className="text-2xl font-bold text-white">
-                    {pageInfo.totalPets}
+                  <p className="text-lg font-semibold text-white">
+                    Keep profiles complete & up to date
                   </p>
-                  <p className="text-sm text-[#bfc0d1]/70">Total Pets</p>
+                  <p className="mt-1 text-sm text-[#bfc0d1]/70 max-w-md">
+                    Pets with clear photos, health details, and accurate
+                    descriptions receive significantly more adoption requests.
+                  </p>
                 </div>
               </div>
 
-              <p className="text-sm text-[#bfc0d1]/70">
-                Page {pageInfo.currentPage} of {pageInfo.totalPages}
-              </p>
+              <span className="hidden sm:inline-flex rounded-full bg-[#4a5568]/20 px-3 py-1 text-xs font-medium text-[#bfc0d1]">
+                Adoption Tips
+              </span>
             </div>
           </div>
 

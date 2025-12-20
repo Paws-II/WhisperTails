@@ -18,8 +18,15 @@ const PetDetailsCard = ({ pet }) => {
 
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-[#4a5568]/20 bg-[#31323e] transition-all duration-300 hover:border-[#4a5568]/50 hover:shadow-xl hover:shadow-[#4a5568]/20 hover:-translate-y-1">
+      {/* Image Section */}
       <div className="relative h-48 w-full overflow-hidden bg-[#4a5568]/20">
-        {pet.images?.length ? (
+        {pet.coverImage ? (
+          <img
+            src={pet.coverImage}
+            alt={pet.name}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+        ) : pet.images?.length ? (
           <img
             src={pet.images[0]}
             alt={pet.name}
@@ -40,6 +47,7 @@ const PetDetailsCard = ({ pet }) => {
         </div>
       </div>
 
+      {/* Content */}
       <div className="p-5">
         <div className="mb-3">
           <h3 className="mb-1 text-xl font-bold text-white">{pet.name}</h3>

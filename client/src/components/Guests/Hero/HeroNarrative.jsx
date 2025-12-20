@@ -71,7 +71,7 @@ const HeroNarrative = ({ titleRef }) => {
             size={18}
             className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+          <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/25 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
         </button>
 
         <button

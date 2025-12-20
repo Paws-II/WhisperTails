@@ -125,7 +125,6 @@ const NotificationBell = () => {
   /* ================================== UI =================================== */
   return (
     <div ref={containerRef} className="relative">
-      {/* 🔔 BELL BUTTON */}
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="relative rounded-full p-2.5 transition-all duration-200 hover:bg-white/10 active:scale-95"
@@ -133,7 +132,7 @@ const NotificationBell = () => {
       >
         <Bell size={20} className="text-white/90" strokeWidth={2.5} />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-600 px-1 text-[10px] font-bold text-white shadow-lg animate-pulse">
+          <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-linear-to-br from-red-500 to-red-600 px-1 text-[10px] font-bold text-white shadow-lg animate-pulse">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -255,7 +254,7 @@ const NotificationBell = () => {
 
                       {/* Unread Left Border Accent */}
                       {!n.read && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-blue-600" />
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-blue-500 to-blue-600" />
                       )}
                     </div>
                   ))}

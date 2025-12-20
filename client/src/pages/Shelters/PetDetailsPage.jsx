@@ -33,6 +33,7 @@ const PetDetailsPage = () => {
   const [deleteCountdown, setDeleteCountdown] = useState(15);
   const [isDeleting, setIsDeleting] = useState(false);
   const [toast, setToast] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     fetchPetDetails();
@@ -120,6 +121,28 @@ const PetDetailsPage = () => {
     }
   };
 
+  const ImageModal = ({ imageUrl, onClose }) => {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+        onClick={onClose}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+        >
+          <X size={24} />
+        </button>
+        <img
+          src={imageUrl}
+          alt="Full size"
+          className="max-h-[90vh] max-w-[90vw] object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <FullPageLoader
@@ -156,11 +179,19 @@ const PetDetailsPage = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-6 space-y-4">
                 <div className="overflow-hidden rounded-2xl border border-[#4a5568]/20 bg-[#31323e]">
-                  {pet.images && pet.images.length > 0 ? (
+                  {pet.coverImage ? (
+                    <img
+                      src={pet.coverImage}
+                      alt={pet.name}
+                      className="h-80 w-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setSelectedImage(pet.coverImage)}
+                    />
+                  ) : pet.images && pet.images.length > 0 ? (
                     <img
                       src={pet.images[0]}
                       alt={pet.name}
-                      className="h-80 w-full object-cover"
+                      className="h-80 w-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setSelectedImage(pet.images[0])}
                     />
                   ) : (
                     <div className="flex h-80 items-center justify-center bg-[#4a5568]/20">
@@ -169,20 +200,24 @@ const PetDetailsPage = () => {
                   )}
                 </div>
 
-                {pet.images && pet.images.length > 1 && (
+                {pet.images && pet.images.length > 0 && (
                   <div className="grid grid-cols-3 gap-2">
-                    {pet.images.slice(1, 4).map((img, idx) => (
-                      <div
-                        key={idx}
-                        className="overflow-hidden rounded-lg border border-[#4a5568]/20"
-                      >
-                        <img
-                          src={img}
-                          alt={`${pet.name} ${idx + 2}`}
-                          className="h-24 w-full object-cover"
-                        />
-                      </div>
-                    ))}
+                    {pet.images
+                      .filter((img) => img !== pet.coverImage)
+                      .slice(0, 5)
+                      .map((img, idx) => (
+                        <div
+                          key={idx}
+                          className="overflow-hidden rounded-lg border border-[#4a5568]/20 cursor-pointer hover:border-[#4a5568]/50 transition-all"
+                          onClick={() => setSelectedImage(img)}
+                        >
+                          <img
+                            src={img}
+                            alt={`${pet.name} ${idx + 2}`}
+                            className="h-24 w-full object-cover hover:scale-110 transition-transform"
+                          />
+                        </div>
+                      ))}
                   </div>
                 )}
 
@@ -202,6 +237,38 @@ const PetDetailsPage = () => {
                     <Trash2 size={18} />
                     Delete Pet
                   </button>
+                </div>
+
+                {/* Cost Summary */}
+                <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
+                  <h3 className="mb-4 text-lg font-bold text-white">
+                    Adoption Cost
+                  </h3>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#bfc0d1]/70">
+                        Maintenance Cost
+                      </span>
+                      <span className="font-semibold text-white">
+                        ₹{pet.maintenanceCost || 0}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#bfc0d1]/70">Donation</span>
+                      <span className="font-semibold text-white">
+                        ₹{pet.donation || 0}
+                      </span>
+                    </div>
+
+                    <div className="border-t border-[#4a5568]/20 pt-2 mt-2 flex justify-between">
+                      <span className="font-bold text-white">Total</span>
+                      <span className="font-bold text-[#4a5568]">
+                        ₹{pet.totalAdoptionCost || 0}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -291,43 +358,144 @@ const PetDetailsPage = () => {
                   </h2>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="flex items-center gap-3 rounded-xl bg-[#1e202c]/50 p-4">
-                    {pet.vaccinated ? (
-                      <Check size={20} className="text-green-400" />
-                    ) : (
-                      <X size={20} className="text-red-400" />
-                    )}
-                    <span className="text-sm text-[#bfc0d1]">Vaccinated</span>
+                <div className="space-y-4">
+                  {/* Price Breakdown Grid */}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {/* Vaccinated */}
+                    <div className="rounded-xl bg-[#1e202c]/50 p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          {pet.vaccinated ? (
+                            <Check size={20} className="text-green-400" />
+                          ) : (
+                            <X size={20} className="text-red-400" />
+                          )}
+                          <span className="text-sm text-[#bfc0d1]">
+                            Vaccinated
+                          </span>
+                        </div>
+                        <span
+                          className={`text-sm font-semibold ${
+                            pet.vaccinated
+                              ? "text-green-400"
+                              : "text-[#bfc0d1]/40"
+                          }`}
+                        >
+                          {pet.vaccinated ? "₹500" : "₹0"}
+                        </span>
+                      </div>
+                      <div className="text-xs text-[#bfc0d1]/60">
+                        {pet.vaccinated
+                          ? "Included in maintenance"
+                          : "Not vaccinated"}
+                      </div>
+                    </div>
+
+                    {/* Spayed/Neutered */}
+                    <div className="rounded-xl bg-[#1e202c]/50 p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          {pet.spayedNeutered ? (
+                            <Check size={20} className="text-green-400" />
+                          ) : (
+                            <X size={20} className="text-red-400" />
+                          )}
+                          <span className="text-sm text-[#bfc0d1]">
+                            Spayed/Neutered
+                          </span>
+                        </div>
+                        <span
+                          className={`text-sm font-semibold ${
+                            pet.spayedNeutered
+                              ? "text-green-400"
+                              : "text-[#bfc0d1]/40"
+                          }`}
+                        >
+                          {pet.spayedNeutered ? "₹400" : "₹0"}
+                        </span>
+                      </div>
+                      <div className="text-xs text-[#bfc0d1]/60">
+                        {pet.spayedNeutered
+                          ? "Included in maintenance"
+                          : "Not spayed/neutered"}
+                      </div>
+                    </div>
+
+                    {/* House Trained */}
+                    <div className="rounded-xl bg-[#1e202c]/50 p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          {pet.houseTrained ? (
+                            <Check size={20} className="text-green-400" />
+                          ) : (
+                            <X size={20} className="text-red-400" />
+                          )}
+                          <span className="text-sm text-[#bfc0d1]">
+                            House Trained
+                          </span>
+                        </div>
+                        <span
+                          className={`text-sm font-semibold ${
+                            pet.houseTrained
+                              ? "text-green-400"
+                              : "text-[#bfc0d1]/40"
+                          }`}
+                        >
+                          {pet.houseTrained ? "₹1000" : "₹0"}
+                        </span>
+                      </div>
+                      <div className="text-xs text-[#bfc0d1]/60">
+                        {pet.houseTrained
+                          ? "Included in maintenance"
+                          : "Not house trained"}
+                      </div>
+                    </div>
+
+                    {/* Special Needs */}
+                    <div className="rounded-xl bg-[#1e202c]/50 p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          {pet.specialNeeds ? (
+                            <Activity size={20} className="text-yellow-400" />
+                          ) : (
+                            <Check size={20} className="text-green-400" />
+                          )}
+                          <span className="text-sm text-[#bfc0d1]">
+                            {pet.specialNeeds
+                              ? "Special Needs"
+                              : "No Special Needs"}
+                          </span>
+                        </div>
+                        <span
+                          className={`text-sm font-semibold ${
+                            pet.specialNeeds
+                              ? "text-yellow-400"
+                              : "text-[#bfc0d1]/40"
+                          }`}
+                        >
+                          {pet.specialNeeds ? "₹100" : "₹0"}
+                        </span>
+                      </div>
+                      <div className="text-xs text-[#bfc0d1]/60">
+                        {pet.specialNeeds
+                          ? "Requires extra care"
+                          : "Standard care"}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-3 rounded-xl bg-[#1e202c]/50 p-4">
-                    {pet.neutered ? (
-                      <Check size={20} className="text-green-400" />
-                    ) : (
-                      <X size={20} className="text-red-400" />
-                    )}
-                    <span className="text-sm text-[#bfc0d1]">Neutered</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 rounded-xl bg-[#1e202c]/50 p-4">
-                    {pet.trained ? (
-                      <Check size={20} className="text-green-400" />
-                    ) : (
-                      <X size={20} className="text-red-400" />
-                    )}
-                    <span className="text-sm text-[#bfc0d1]">Trained</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 rounded-xl bg-[#1e202c]/50 p-4">
-                    {pet.specialNeeds ? (
-                      <Activity size={20} className="text-yellow-400" />
-                    ) : (
-                      <Check size={20} className="text-green-400" />
-                    )}
-                    <span className="text-sm text-[#bfc0d1]">
-                      {pet.specialNeeds ? "Special Needs" : "No Special Needs"}
-                    </span>
+                  <div className="rounded-xl bg-[#4a5568]/20 border border-[#4a5568]/30 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-white">
+                        Total Maintenance Cost
+                      </span>
+                      <span className="text-lg font-bold text-[#4a5568]">
+                        ₹{pet.maintenanceCost || 0}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-[#bfc0d1]/60">
+                      Based on health and care services provided
+                    </p>
                   </div>
                 </div>
 
@@ -342,6 +510,16 @@ const PetDetailsPage = () => {
                   </div>
                 )}
               </div>
+              {pet.specialNeeds && pet.specialNeedsDescription && (
+                <div className="mt-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 p-4">
+                  <p className="text-xs text-yellow-400/80 mb-2 font-semibold">
+                    Special Needs Description
+                  </p>
+                  <p className="text-sm text-[#bfc0d1] leading-relaxed">
+                    {pet.specialNeedsDescription}
+                  </p>
+                </div>
+              )}
 
               {/* Temperament */}
               {pet.temperament && pet.temperament.length > 0 && (
@@ -442,6 +620,14 @@ const PetDetailsPage = () => {
           title={toast.title}
           message={toast.message}
           onClose={() => setToast(null)}
+        />
+      )}
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <ImageModal
+          imageUrl={selectedImage}
+          onClose={() => setSelectedImage(null)}
         />
       )}
     </div>

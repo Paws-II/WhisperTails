@@ -8,7 +8,7 @@ const Signup = () => {
   return (
     <div className="min-h-screen bg-[#1e202c] text-[#bfc0d1] flex items-center justify-center px-6 relative overflow-hidden">
       {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#60519b]/20 via-transparent to-[#31323e]/40" />
+      <div className="absolute inset-0 bg-linear-to-br from-[#60519b]/20 via-transparent to-[#31323e]/40" />
       <div className="absolute top-24 left-24 w-96 h-96 bg-[#60519b]/30 rounded-full blur-3xl" />
       <div className="absolute bottom-24 right-24 w-96 h-96 bg-[#60519b]/30 rounded-full blur-3xl" />
 
@@ -18,7 +18,7 @@ const Signup = () => {
         <div className="text-center mb-10">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Join{" "}
-            <span className="bg-gradient-to-r from-[#60519b] to-[#8b7bc4] bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-[#60519b] to-[#8b7bc4] bg-clip-text text-transparent">
               Pamels
             </span>
           </h1>
@@ -34,10 +34,10 @@ const Signup = () => {
             onClick={() => navigate("/signupOwner")}
             className="group relative overflow-hidden rounded-2xl border border-[#60519b]/30 bg-[#1e202c]/60 p-8 hover:border-[#60519b] transition-all duration-300"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#60519b]/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+            <div className="absolute inset-0 bg-linear-to-br from-[#60519b]/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
 
             <div className="relative z-10 flex flex-col items-start space-y-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-[#60519b] to-[#7a6aad] rounded-xl flex items-center justify-center shadow-lg shadow-[#60519b]/40">
+              <div className="w-14 h-14 bg-linear-to-br from-[#60519b] to-[#7a6aad] rounded-xl flex items-center justify-center shadow-lg shadow-[#60519b]/40">
                 <Users className="text-white" size={28} />
               </div>
 
@@ -63,10 +63,10 @@ const Signup = () => {
             onClick={() => navigate("/signupShelter")}
             className="group relative overflow-hidden rounded-2xl border border-[#60519b]/30 bg-[#1e202c]/60 p-8 hover:border-[#60519b] transition-all duration-300"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#60519b]/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+            <div className="absolute inset-0 bg-linear-to-br from-[#60519b]/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
 
             <div className="relative z-10 flex flex-col items-start space-y-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-[#60519b] to-[#7a6aad] rounded-xl flex items-center justify-center shadow-lg shadow-[#60519b]/40">
+              <div className="w-14 h-14 bg-linear-to-br from-[#60519b] to-[#7a6aad] rounded-xl flex items-center justify-center shadow-lg shadow-[#60519b]/40">
                 <Shield className="text-white" size={28} />
               </div>
 

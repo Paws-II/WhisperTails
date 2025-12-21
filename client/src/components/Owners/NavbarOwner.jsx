@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   X,
+  FileText,
   PawPrint,
   Settings,
 } from "lucide-react";
@@ -49,6 +50,11 @@ const Navbar = ({ onLogout }) => {
           path: "#",
           icon: PlusCircle,
           label: "Add a Pet",
+        },
+        {
+          path: "/applications-owner",
+          icon: FileText,
+          label: "My Applications",
         },
       ],
     },

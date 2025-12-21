@@ -19,6 +19,10 @@ import ShelterPetAdd from "./pages/Shelters/ShelterPetAdd.jsx";
 import ShelterPetView from "./pages/Shelters/ShelterPetView.jsx";
 import PetDetailsPage from "./pages/Shelters/PetDetailsPage.jsx";
 import OwnerAdoptPet from "./pages/Owners/OwnerAdoptPet.jsx";
+import ShelterApplications from "./pages/Shelters/ShelterApplications.jsx";
+import ShelterApplicationDetail from "./pages/Shelters/ShelterApplicationDetail.jsx";
+import OwnerMyApplications from "./pages/Owners/OwnerMyApplications.jsx";
+import RejectedApplicationDetail from "./pages/Owners/RejectedApplicationDetail.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -48,6 +52,20 @@ createRoot(document.getElementById("root")).render(
           <Route path="/my-pets" element={<ShelterPetView />} />
           <Route path="/shelter/pets/:petId" element={<PetDetailsPage />} />
           <Route path="/adopt-pet" element={<OwnerAdoptPet />} />
+
+          <Route
+            path="/applications-shelter"
+            element={<ShelterApplications />}
+          />
+          <Route
+            path="/shelter/applications-shelter/:applicationId"
+            element={<ShelterApplicationDetail />}
+          />
+          <Route path="/applications-owner" element={<OwnerMyApplications />} />
+          <Route
+            path="/applications-owner/rejected/:applicationId"
+            element={<RejectedApplicationDetail />}
+          />
         </Routes>
       </BrowserRouter>
     </SocketProvider>

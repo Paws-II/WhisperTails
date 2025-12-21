@@ -43,7 +43,11 @@ const NavbarShelter = ({ onLogout }) => {
       title: "Pet Management",
       links: [
         { path: "/my-pets", icon: Heart, label: "My Pets" },
-        { path: "/applications", icon: FileText, label: "Applications" },
+        {
+          path: "/applications-shelter",
+          icon: FileText,
+          label: "Applications",
+        },
         { path: "/checkup", icon: Stethoscope, label: "Checkup" },
       ],
     },

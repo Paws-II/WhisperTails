@@ -548,21 +548,92 @@ const adoptionController = {
     try {
       const ownerId = req.userId;
 
-      const applications = await AdoptionApplication.find({ ownerId })
+      const activeApplications = await AdoptionApplication.find({ ownerId })
         .populate("petId", "name species breed images coverImage")
         .populate("shelterId", "email")
         .sort({ createdAt: -1 })
         .lean();
 
+      const RejectedApplication = (
+        await import("../../models/adoption/RejectedApplication.js")
+      ).default;
+
+      const rejectedApplications = await RejectedApplication.find({ ownerId })
+        .populate("petId", "name species breed images coverImage")
+        .populate("shelterId", "email")
+        .sort({ createdAt: -1 })
+        .lean();
+
+      const allApplications = [...activeApplications, ...rejectedApplications];
+
       return res.json({
         success: true,
-        data: applications,
+        data: allApplications,
       });
     } catch (error) {
       console.error("Get applications error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to fetch applications",
+      });
+    }
+  },
+
+  getRejectedApplicationDetails: async (req, res) => {
+    try {
+      const { applicationId } = req.params;
+      const ownerId = req.userId;
+
+      let application = await AdoptionApplication.findOne({
+        _id: applicationId,
+        ownerId,
+      })
+        .populate("petId", "name species breed images coverImage")
+        .populate("shelterId", "email")
+        .lean();
+
+      let isRejected = false;
+
+      if (!application) {
+        const RejectedApplication = (
+          await import("../../models/adoption/RejectedApplication.js")
+        ).default;
+
+        application = await RejectedApplication.findOne({
+          _id: applicationId,
+          ownerId,
+        })
+          .populate("petId", "name species breed images coverImage")
+          .populate("shelterId", "email")
+          .lean();
+
+        isRejected = true;
+      }
+
+      if (!application) {
+        return res.status(404).json({
+          success: false,
+          message: "Application not found",
+        });
+      }
+
+      const shelterProfile = await ShelterProfile.findOne({
+        shelterId: application.shelterId._id,
+      }).lean();
+
+      return res.json({
+        success: true,
+        data: {
+          application,
+          shelterProfile,
+          isRejected,
+        },
+      });
+    } catch (error) {
+      console.error("Fetch application details error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch application details",
       });
     }
   },

@@ -26,4 +26,31 @@ router.patch(
   applicationManagementController.rejectApplication
 );
 
+router.post(
+  "/:applicationId/chat",
+  applicationManagementController.createChatConnection
+);
+
+router.post(
+  "/:applicationId/meeting",
+  applicationManagementController.createMeetingConnection
+);
+router.patch(
+  "/:applicationId/chat/close",
+  applicationManagementController.closeChatConnection
+);
+
+router.patch(
+  "/:applicationId/meeting/close",
+  applicationManagementController.closeMeetingConnection
+);
+router.get(
+  "/:applicationId/chat/status",
+  applicationManagementController.getChatRoomStatus
+);
+
+router.get(
+  "/:applicationId/meeting/status",
+  applicationManagementController.getMeetingRoomStatus
+);
 export default router;

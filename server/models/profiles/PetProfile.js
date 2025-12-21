@@ -109,7 +109,7 @@ const petProfileSchema = new mongoose.Schema(
 
     adoptionStatus: {
       type: String,
-      enum: ["available", "pending", "adopted"],
+      enum: ["available", "reserved", "adopted"],
       default: "available",
       index: true,
     },

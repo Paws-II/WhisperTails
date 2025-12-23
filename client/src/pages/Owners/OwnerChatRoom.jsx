@@ -1,28 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import ChatSidebar from "../../components/Owners/test/OwnerChatSidebar";
-import ChatWindow from "../../components/Owners/test/OwnerChatWindow";
+import OwnerChatSidebar from "../../components/Owners/test/OwnerChatSidebar";
+import OwnerChatWindow from "../../components/Owners/test/OwnerChatWindow";
 
-const OwnerChatRoom = () => {
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+const OwnerChatPage = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchUserId = async () => {
       try {
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_API_URL || "http://localhost:8000"
-          }/api/auth/owner/profile`,
-          { credentials: "include" }
-        );
+        const response = await fetch(`${API_URL}/api/auth/owner/profile`, {
+          credentials: "include",
+        });
         const data = await response.json();
         if (data.success) {
           setCurrentUserId(data.profile.ownerId._id);
-
-          console.log("This is incoming ", data);
         }
       } catch (error) {
         console.error("Fetch user ID error:", error);
@@ -32,31 +29,17 @@ const OwnerChatRoom = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#1e202c] flex flex-col">
-      <div className="bg-[#31323e] border-b border-white/10 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/owner-dashboard")}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-          >
-            <ArrowLeft size={20} className="text-white" />
-          </button>
-          <div className="flex items-center gap-2">
-            <MessageCircle size={24} className="text-[#60519b]" />
-            <h1 className="text-xl font-bold text-white">Chat</h1>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 flex overflow-hidden">
-        <ChatSidebar
+    <div className="h-screen bg-[#1e202c] flex flex-col overflow-hidden">
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        <OwnerChatSidebar
           onSelectRoom={setSelectedRoom}
           selectedRoomId={selectedRoom?._id}
           userRole="owner"
         />
 
         {selectedRoom ? (
-          <ChatWindow
+          <OwnerChatWindow
             room={selectedRoom}
             userRole="owner"
             currentUserId={currentUserId}
@@ -64,8 +47,16 @@ const OwnerChatRoom = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center bg-[#1e202c]">
             <div className="text-center text-white/40">
-              <MessageCircle size={64} className="mx-auto mb-4 opacity-50" />
-              <p className="text-lg">Select a chat to start messaging</p>
+              <MessageCircle
+                size={64}
+                className="mx-auto mb-4 opacity-50 animate-pulse"
+              />
+              <p className="text-lg font-medium">
+                Select a chat to start messaging
+              </p>
+              <p className="text-sm mt-2 text-white/30">
+                Choose a conversation from the sidebar
+              </p>
             </div>
           </div>
         )}
@@ -74,4 +65,4 @@ const OwnerChatRoom = () => {
   );
 };
 
-export default OwnerChatRoom;
+export default OwnerChatPage;

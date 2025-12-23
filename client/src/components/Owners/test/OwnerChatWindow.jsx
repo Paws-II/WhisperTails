@@ -1,27 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Send,
-  User,
-  Circle,
   MoreVertical,
-  Ban,
-  X as XIcon,
-  Image as ImageIcon,
-  Smile,
   Trash2,
-  Reply,
+  ChevronDown,
+  Download,
+  X as XIcon,
 } from "lucide-react";
 import { useSocket } from "../../../../hooks/useSocket";
+import OwnerChatHeader from "./ChatHeader";
+import OwnerChatInput from "./ChatInput";
+import ConfirmationDialog from "../../../Common/ConfirmationDialog";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
+const OwnerChatWindow = ({ room, userRole, currentUserId }) => {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
   const { socket, on, emit, isConnected } = useSocket();
   const [isOppositeOnline, setIsOppositeOnline] = useState(false);
@@ -29,6 +28,7 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
   const [showWallpaperPicker, setShowWallpaperPicker] = useState(false);
   const wallpaperInputRef = useRef(null);
   const [viewImage, setViewImage] = useState(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const presetWallpapers = [
     { id: "default", name: "Default", url: null },
@@ -69,31 +69,7 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
   const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
   const [messageMenu, setMessageMenu] = useState(null);
-
-  useEffect(() => {
-    console.group("👤 CURRENT LOGIN USER (OwmerChatWindow)");
-
-    console.log("currentUserId:", currentUserId, typeof currentUserId);
-    console.log("userRole:", userRole);
-
-    console.log("room.ownerId:", room?.ownerId?.toString());
-    console.log("room.shelterId:", room?.shelterId?.toString());
-
-    console.log(
-      "Is Owner?",
-      currentUserId?.toString() === room?.ownerId?._id?.toString()
-    );
-
-    console.log(
-      "Is Shelter?",
-      currentUserId?.toString() === room?.shelterId?._id?.toString()
-    );
-
-    console.log("Socket connected:", isConnected);
-    console.log("Socket id:", socket?.id);
-
-    console.groupEnd();
-  }, []);
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
 
   useEffect(() => {
     if (!room) return;
@@ -140,6 +116,7 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
         }
       }
     });
+
     const unsubTyping = on("chat:user:typing", (data) => {
       if (data.roomId === room._id && data.userId !== currentUserId) {
         setIsTyping(data.isTyping);
@@ -148,7 +125,7 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
 
     const unsubRoomUpdate = on("chat:room:update", (data) => {
       if (data.roomId === room._id) {
-        // Room metadata updated
+        //
       }
     });
 
@@ -172,7 +149,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
         ? room.shelterId?._id?.toString() || room.shelterId?.toString()
         : room.ownerId?._id?.toString() || room.ownerId?.toString();
 
-    // Reset online status when component mounts
     setIsOppositeOnline(false);
 
     const unsubOnline = on("user:online", (data) => {
@@ -196,7 +172,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
     return () => {
       unsubOnline();
       unsubOffline();
-
       setIsOppositeOnline(false);
     };
   }, [room, isConnected, userRole, on]);
@@ -214,10 +189,10 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
       unsubWallpaper();
     };
   }, [room, isConnected]);
+
   useEffect(() => {
     if (!room || !isConnected) return;
 
-    // Listen for delivery confirmations
     const unsubDelivered = on("chat:message:delivered", (data) => {
       if (data.roomId === room._id) {
         setMessages((prev) =>
@@ -236,7 +211,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
       }
     });
 
-    // Listen for read receipts
     const unsubRead = on("chat:message:read", (data) => {
       if (data.roomId === room._id) {
         setMessages((prev) =>
@@ -286,6 +260,20 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
     });
   }, [messages, room, currentUserId, isConnected]);
 
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
+      setShowScrollButton(!isNearBottom);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const fetchMessages = async () => {
     try {
       const response = await fetch(
@@ -297,20 +285,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
 
       const data = await response.json();
       if (data.success) {
-        console.group("📦 FETCHED MESSAGES");
-        data.data.messages.forEach((msg, i) => {
-          console.log(`Message #${i}`);
-          console.log("Message ID:", msg._id);
-          console.log("Sender ID:", msg.senderId);
-          console.log("Sender ID type:", typeof msg.senderId);
-          console.log("Sender ID._id:", msg.senderId?._id);
-          console.log(
-            "Is Own Message?",
-            msg.senderId?.toString?.() === currentUserId?.toString?.()
-          );
-          console.log("-----");
-        });
-        console.groupEnd();
         setMessages(data.data.messages);
       }
     } catch (error) {
@@ -378,17 +352,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
   const sendMessage = async () => {
     if (!messageInput.trim() && !imageFile) return;
 
-    console.group("📤 SEND MESSAGE CLICKED");
-
-    console.log("Room ID:", room._id, typeof room._id);
-    console.log("Current User ID:", currentUserId, typeof currentUserId);
-    console.log("User Role:", userRole);
-
-    console.log("Message Text:", messageInput);
-    console.log("Has Image:", !!imageFile);
-
-    console.groupEnd();
-
     const formData = new FormData();
 
     if (imageFile) {
@@ -417,32 +380,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
 
       const data = await response.json();
       if (data.success) {
-        console.group("✅ MESSAGE SENT - API RESPONSE");
-
-        console.log("Returned Message:", data.data);
-        console.log("Message ID:", data.data._id);
-
-        console.log(
-          "Sender ID:",
-          data.data.senderId,
-          typeof data.data.senderId
-        );
-
-        console.log(
-          "Sender ID._id:",
-          data.data.senderId?._id,
-          typeof data.data.senderId?._id
-        );
-
-        console.log("Current User ID:", currentUserId, typeof currentUserId);
-
-        console.log(
-          "Is Own Message?",
-          data.data.senderId?.toString?.() === currentUserId?.toString?.()
-        );
-
-        console.groupEnd();
-
         setMessages((prev) => [...prev, data.data]);
       }
     } catch (error) {
@@ -467,47 +404,55 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
   };
 
   const handleBlockRoom = async () => {
-    if (!confirm("Are you sure you want to block this chat?")) return;
+    setDeleteConfirmation({
+      type: "danger",
+      title: "Block Chat",
+      message: "Are you sure you want to block this chat?",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(
+            `${API_URL}/api/chat/rooms/${room._id}/block`,
+            {
+              method: "PATCH",
+              credentials: "include",
+            }
+          );
 
-    try {
-      const response = await fetch(
-        `${API_URL}/api/chat/rooms/${room._id}/block`,
-        {
-          method: "PATCH",
-          credentials: "include",
+          const data = await response.json();
+          if (data.success) {
+            setShowMenu(false);
+          }
+        } catch (error) {
+          console.error("Block room error:", error);
         }
-      );
-
-      const data = await response.json();
-      if (data.success) {
-        alert("Chat blocked successfully");
-        setShowMenu(false);
-      }
-    } catch (error) {
-      console.error("Block room error:", error);
-    }
+      },
+    });
   };
 
   const handleCloseRoom = async () => {
-    if (!confirm("Are you sure you want to close this chat?")) return;
+    setDeleteConfirmation({
+      type: "warning",
+      title: "Close Chat",
+      message: "Are you sure you want to close this chat?",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(
+            `${API_URL}/api/chat/rooms/${room._id}/close`,
+            {
+              method: "PATCH",
+              credentials: "include",
+            }
+          );
 
-    try {
-      const response = await fetch(
-        `${API_URL}/api/chat/rooms/${room._id}/close`,
-        {
-          method: "PATCH",
-          credentials: "include",
+          const data = await response.json();
+          if (data.success) {
+            setShowMenu(false);
+          }
+        } catch (error) {
+          console.error("Close room error:", error);
         }
-      );
-
-      const data = await response.json();
-      if (data.success) {
-        alert("Chat closed successfully");
-        setShowMenu(false);
-      }
-    } catch (error) {
-      console.error("Close room error:", error);
-    }
+      },
+    });
   };
 
   const scrollToBottom = () => {
@@ -557,6 +502,18 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
     }
   };
 
+  const openDeleteConfirmation = (messageId, deleteForEveryone) => {
+    setDeleteConfirmation({
+      type: "danger",
+      title: deleteForEveryone ? "Delete for Everyone" : "Delete for Me",
+      message: deleteForEveryone
+        ? "This message will be deleted for all participants. This action cannot be undone."
+        : "This message will only be deleted from your view.",
+      onConfirm: () => handleDeleteMessage(messageId, deleteForEveryone),
+    });
+    setMessageMenu(null);
+  };
+
   const handleImageDownload = async (imageUrl) => {
     try {
       const response = await fetch(imageUrl);
@@ -574,7 +531,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Image download failed:", error);
-      alert("Failed to download image");
     }
   };
 
@@ -603,7 +559,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
   const handleCustomWallpaperUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !file.type.startsWith("image/")) {
-      alert("Please select a valid image file");
       return;
     }
 
@@ -627,7 +582,6 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
       }
     } catch (error) {
       console.error("Wallpaper upload error:", error);
-      alert("Failed to upload wallpaper");
     }
   };
 
@@ -645,181 +599,40 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#1e202c]">
-      {/* Header */}
-      <div className="bg-[#31323e] border-b border-white/10 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="h-10 w-10 rounded-full bg-[#60519b]/20 flex items-center justify-center overflow-hidden">
-              {oppositeProfile?.avatar ? (
-                <img
-                  src={oppositeProfile.avatar}
-                  alt={oppositeProfile.name}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <User size={20} className="text-[#60519b]" />
-              )}
-            </div>
-            {isOppositeOnline && (
-              <Circle
-                size={8}
-                className="absolute bottom-0 right-0 text-green-500 fill-green-500"
-              />
-            )}
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-white">
-              {oppositeProfile?.name || "Unknown User"}
-            </h3>
-            <p className="text-xs text-white/60">
-              {isTyping ? "typing..." : room.petId?.name || ""}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Wallpaper Button */}
-          <div className="relative">
-            <button
-              onClick={() => setShowWallpaperPicker(!showWallpaperPicker)}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              title="Change wallpaper"
-            >
-              <ImageIcon size={20} className="text-white" />
-            </button>
-
-            {showWallpaperPicker && (
-              <div className="absolute right-0 top-full mt-2 bg-[#31323e] border border-white/10 rounded-lg shadow-xl z-20 w-72 p-3">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-white">
-                    Choose Wallpaper
-                  </h3>
-                  <button
-                    onClick={() => setShowWallpaperPicker(false)}
-                    className="p-1 rounded hover:bg-white/10"
-                  >
-                    <XIcon size={16} className="text-white/60" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  {presetWallpapers.map((preset) => (
-                    <button
-                      key={preset.id}
-                      onClick={() =>
-                        handleWallpaperChange(preset.url || "default")
-                      }
-                      className={`relative h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        wallpaper === (preset.url || "default")
-                          ? "border-[#60519b]"
-                          : "border-white/10 hover:border-white/30"
-                      }`}
-                    >
-                      {preset.url ? (
-                        <img
-                          src={preset.url}
-                          alt={preset.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-[#1e202c] flex items-center justify-center">
-                          <span className="text-xs text-white/60">Default</span>
-                        </div>
-                      )}
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
-                        <p className="text-xs text-white truncate">
-                          {preset.name}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                <input
-                  type="file"
-                  ref={wallpaperInputRef}
-                  accept="image/*"
-                  onChange={handleCustomWallpaperUpload}
-                  className="hidden"
-                />
-                <button
-                  onClick={() => wallpaperInputRef.current?.click()}
-                  className="w-full bg-[#60519b] hover:bg-[#7d6ab8] text-white text-sm py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
-                >
-                  <ImageIcon size={16} />
-                  Upload Custom Wallpaper
-                </button>
-              </div>
-            )}
-          </div>
-
-          {userRole === "shelter" && (
-            <div className="relative">
-              <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              >
-                <MoreVertical size={20} className="text-white" />
-              </button>
-
-              {showMenu && (
-                <div className="absolute right-0 top-full mt-2 bg-[#31323e] border border-white/10 rounded-lg shadow-xl z-10 min-w-[160px]">
-                  <button
-                    onClick={handleCloseRoom}
-                    className="w-full px-4 py-2 text-left text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2"
-                  >
-                    <XIcon size={16} />
-                    Close Chat
-                  </button>
-                  <button
-                    onClick={handleBlockRoom}
-                    className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
-                  >
-                    <Ban size={16} />
-                    Block Chat
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+    <div className="flex-1 flex flex-col min-h-0 bg-[#1e202c] relative">
+      <OwnerChatHeader
+        room={room}
+        userRole={userRole}
+        oppositeProfile={oppositeProfile}
+        isOppositeOnline={isOppositeOnline}
+        isTyping={isTyping}
+        showMenu={showMenu}
+        setShowMenu={setShowMenu}
+        handleCloseRoom={handleCloseRoom}
+        handleBlockRoom={handleBlockRoom}
+        wallpaper={wallpaper}
+        showWallpaperPicker={showWallpaperPicker}
+        setShowWallpaperPicker={setShowWallpaperPicker}
+        presetWallpapers={presetWallpapers}
+        handleWallpaperChange={handleWallpaperChange}
+        wallpaperInputRef={wallpaperInputRef}
+        handleCustomWallpaperUpload={handleCustomWallpaperUpload}
+      />
 
       <div
-        className="flex-1 overflow-y-auto p-4 space-y-4"
+        ref={messagesContainerRef}
+        className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 relative"
         style={{
           backgroundImage:
             wallpaper === "default" ? "none" : `url(${wallpaper})`,
-          backgroundSize: "cover",
+          backgroundSize: "contain",
+          backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
+          backgroundAttachment: "scroll",
+          backgroundColor: "#1e202c",
         }}
       >
         {messages.map((message, idx) => {
-          console.group("🧱 RENDER MESSAGE");
-
-          console.log("Message ID:", message._id);
-          console.log("Sender ID (raw):", message.senderId);
-          console.log("Sender ID type:", typeof message.senderId);
-
-          console.log("Sender ID._id:", message.senderId?._id);
-          console.log("Current User ID:", currentUserId);
-
-          console.log(
-            "String Compare (sender vs current):",
-            message.senderId?.toString?.(),
-            currentUserId?.toString?.()
-          );
-
-          console.log(
-            "isOwn:",
-            message.senderId?.toString?.() === currentUserId?.toString?.() ||
-              message.senderId?._id?.toString?.() ===
-                currentUserId?.toString?.()
-          );
-
-          console.groupEnd();
-
           const isOwn =
             message.senderId?.toString?.() === currentUserId?.toString?.();
 
@@ -832,7 +645,7 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
             <div key={message._id}>
               {showDate && (
                 <div className="flex justify-center my-4">
-                  <div className="bg-[#31323e] rounded-full px-3 py-1 text-xs text-white/60">
+                  <div className="bg-[#31323e]/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white/60 shadow-lg">
                     {new Date(message.createdAt).toLocaleDateString()}
                   </div>
                 </div>
@@ -840,7 +653,7 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
 
               {message.messageType === "system" ? (
                 <div className="flex justify-center">
-                  <div className="bg-[#31323e] rounded-lg px-4 py-2 text-xs text-white/60">
+                  <div className="bg-[#31323e]/90 backdrop-blur-sm rounded-lg px-4 py-2 text-xs text-white/60 shadow-lg">
                     {message.content}
                   </div>
                 </div>
@@ -848,9 +661,9 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
                 <div
                   className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
                 >
-                  <div className="relative group">
+                  <div className="relative group max-w-[70%]">
                     <div
-                      className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                      className={`rounded-2xl px-4 py-2 shadow-lg ${
                         isOwn
                           ? "bg-[#60519b] text-white"
                           : "bg-[#31323e] text-white"
@@ -868,16 +681,15 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
                           <div className="relative group mb-2">
                             <img
                               src={message.images[0]}
-                              alt="Shared image"
-                              className="rounded-lg max-w-xs cursor-pointer"
+                              alt="Shared"
+                              className="rounded-lg max-w-xs cursor-pointer transition-transform hover:scale-105"
                               onClick={() => setViewImage(message.images[0])}
                             />
 
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 rounded-lg">
-                              {/* View */}
                               <button
                                 onClick={() => setViewImage(message.images[0])}
-                                className="bg-white/90 text-black text-xs px-3 py-1 rounded hover:bg-white"
+                                className="bg-white/90 hover:bg-white text-black text-xs px-3 py-1.5 rounded-lg font-medium transition-all hover:scale-105"
                               >
                                 View
                               </button>
@@ -886,8 +698,9 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
                                 onClick={() =>
                                   handleImageDownload(message.images[0])
                                 }
-                                className="bg-white/90 text-black text-xs px-3 py-1 rounded hover:bg-white"
+                                className="bg-white/90 hover:bg-white text-black text-xs px-3 py-1.5 rounded-lg font-medium transition-all hover:scale-105 flex items-center gap-1"
                               >
+                                <Download size={12} />
                                 Download
                               </button>
                             </div>
@@ -895,7 +708,9 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
                         )}
 
                       {message.content && (
-                        <p className="text-sm break-words">{message.content}</p>
+                        <p className="text-sm break-words leading-relaxed">
+                          {message.content}
+                        </p>
                       )}
 
                       <div className="flex items-center justify-end gap-1 mt-1">
@@ -918,25 +733,27 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
                     </div>
 
                     {isOwn && (
-                      <div className="absolute top-2 -left-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-2 -left-10 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() =>
                             setMessageMenu(
                               messageMenu === message._id ? null : message._id
                             )
                           }
-                          className="p-1 rounded hover:bg-white/10"
+                          className="p-1.5 rounded-full
+                          bg-black/40 backdrop-blur-sm border border-white/20 shadow-md
+                        hover:bg-black/60 transition-all "
                         >
-                          <MoreVertical size={16} className="text-white/60" />
+                          <MoreVertical size={16} className="text-white" />
                         </button>
 
                         {messageMenu === message._id && (
-                          <div className="absolute right-0 top-full mt-1 bg-[#31323e] border border-white/10 rounded-lg shadow-xl z-10 min-w-[150px]">
+                          <div className="absolute right-0 top-full mt-1 bg-[#31323e] border border-white/10 rounded-lg shadow-xl z-10 min-w-[180px] overflow-hidden">
                             <button
                               onClick={() =>
-                                handleDeleteMessage(message._id, false)
+                                openDeleteConfirmation(message._id, false)
                               }
-                              className="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 flex items-center gap-2"
+                              className="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 flex items-center gap-2 transition-all"
                             >
                               <Trash2 size={14} />
                               Delete for me
@@ -944,9 +761,9 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
 
                             <button
                               onClick={() =>
-                                handleDeleteMessage(message._id, true)
+                                openDeleteConfirmation(message._id, true)
                               }
-                              className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
+                              className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-all"
                             >
                               <Trash2 size={14} />
                               Delete for everyone
@@ -964,129 +781,68 @@ const OwmerChatWindow = ({ room, userRole, currentUserId, onBack }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Status Messages */}
-      {room.status === "blocked" && (
-        <div className="bg-red-500/10 border-t border-red-500/20 p-3 text-center">
-          <p className="text-sm text-red-400">
-            This chat has been blocked. No messages can be sent.
-          </p>
-        </div>
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-24 right-6 p-3 rounded-full bg-[#60519b] hover:bg-[#7d6ab8] text-white shadow-lg transition-all hover:scale-110 active:scale-95 z-10"
+        >
+          <ChevronDown size={20} />
+        </button>
       )}
 
-      {room.status === "closed" && (
-        <div className="bg-yellow-500/10 border-t border-yellow-500/20 p-3 text-center">
-          <p className="text-sm text-yellow-400">
-            This chat has been closed. No messages can be sent.
-          </p>
-        </div>
-      )}
-
-      {/* Input */}
-      {!isReadOnly && (
-        <div className="bg-[#31323e] border-t border-white/10 p-4">
-          {imagePreview && (
-            <div className="mb-3 relative inline-block">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="h-20 w-20 object-cover rounded-lg"
-              />
-              <button
-                onClick={clearImage}
-                className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1"
-              >
-                <XIcon size={12} className="text-white" />
-              </button>
-            </div>
-          )}
-
-          <div className="flex items-center gap-2">
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept="image/*"
-              onChange={handleImageSelect}
-              className="hidden"
-            />
-
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-            >
-              <ImageIcon size={20} className="text-white/60" />
-            </button>
-
-            <div className="relative">
-              <button
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              >
-                <Smile size={20} className="text-white/60" />
-              </button>
-
-              {showEmojiPicker && (
-                <div className="absolute bottom-full mb-2 left-0 bg-[#1e202c] border border-white/10 rounded-lg p-2 shadow-xl">
-                  <div className="grid grid-cols-5 gap-1">
-                    {commonEmojis.map((emoji) => (
-                      <button
-                        key={emoji}
-                        onClick={() => insertEmoji(emoji)}
-                        className="text-2xl hover:bg-white/10 rounded p-1 transition-colors"
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Type a message..."
-              value={messageInput}
-              onChange={handleTyping}
-              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-              onPaste={handlePaste}
-              className="flex-1 bg-[#1e202c] border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/20"
-            />
-
-            <button
-              onClick={sendMessage}
-              disabled={!messageInput.trim() && !imageFile}
-              className="bg-[#60519b] hover:bg-[#7d6ab8] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg p-2 transition-colors"
-            >
-              <Send size={20} className="text-white" />
-            </button>
-          </div>
-        </div>
-      )}
+      <OwnerChatInput
+        messageInput={messageInput}
+        setMessageInput={setMessageInput}
+        sendMessage={sendMessage}
+        handleTyping={handleTyping}
+        handlePaste={handlePaste}
+        showEmojiPicker={showEmojiPicker}
+        setShowEmojiPicker={setShowEmojiPicker}
+        insertEmoji={insertEmoji}
+        commonEmojis={commonEmojis}
+        imagePreview={imagePreview}
+        clearImage={clearImage}
+        fileInputRef={fileInputRef}
+        handleImageSelect={handleImageSelect}
+        imageFile={imageFile}
+        inputRef={inputRef}
+        isReadOnly={isReadOnly}
+      />
 
       {viewImage && (
         <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setViewImage(null)}
         >
-          <div className="relative max-w-[90%] max-h-[90%]">
-            <img
-              src={viewImage}
-              alt="Full view"
-              className="max-w-full max-h-full rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            />
-
-            <button
-              onClick={() => setViewImage(null)}
-              className="absolute -top-4 -right-4 bg-white text-black rounded-full p-2 shadow-lg hover:bg-gray-200"
-            >
-              <XIcon size={18} />
-            </button>
-          </div>
+          <button
+            onClick={() => setViewImage(null)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+          >
+            <XIcon size={24} />
+          </button>
+          <img
+            src={viewImage}
+            alt="Full size"
+            className="max-w-full max-h-full rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
+      )}
+
+      {deleteConfirmation && (
+        <ConfirmationDialog
+          isOpen={true}
+          onClose={() => setDeleteConfirmation(null)}
+          onConfirm={deleteConfirmation.onConfirm}
+          title={deleteConfirmation.title}
+          message={deleteConfirmation.message}
+          type={deleteConfirmation.type}
+          confirmText="Delete"
+          cancelText="Cancel"
+        />
       )}
     </div>
   );
 };
 
-export default OwmerChatWindow;
+export default OwnerChatWindow;

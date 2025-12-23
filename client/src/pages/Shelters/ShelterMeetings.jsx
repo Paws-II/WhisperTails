@@ -14,6 +14,8 @@ import axios from "axios";
 import NavbarShelter from "../../components/Shelters/NavbarShelter";
 import FullPageLoader from "../../Common/FullPageLoader";
 import FullPageError from "../../Common/FullPageError";
+import ConfirmationDialog from "../../Common/ConfirmationDialog";
+import ShelterToast from "../../Common/ShelterToast";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -27,6 +29,8 @@ const ShelterMeetings = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [meetingToDelete, setMeetingToDelete] = useState(null);
 
   const [formData, setFormData] = useState({
     ownerId: "",
@@ -189,9 +193,11 @@ const ShelterMeetings = () => {
     if (
       cancelData.confirmName.trim().toLowerCase() !== owner?.name.toLowerCase()
     ) {
-      alert(
-        "Owner name doesn't match. Please type the correct name to confirm."
-      );
+      setToast({
+        type: "error",
+        title: "Confirmation Failed",
+        message: "Owner name does not match. Please type the correct name.",
+      });
       return;
     }
 
@@ -244,26 +250,38 @@ const ShelterMeetings = () => {
         );
       }
     } catch (err) {
-      alert(
-        err.response?.data?.message || "Failed to mark meeting as complete"
-      );
+      setToast({
+        type: "error",
+        title: "Action Failed",
+        message: err.response?.data?.message || "Unable to complete meeting",
+      });
     }
   };
 
-  const handleDeleteMeeting = async (meetingId) => {
-    if (!confirm("Are you sure you want to delete this meeting?")) return;
-
+  const handleDeleteMeeting = async () => {
     try {
       const res = await axios.delete(
-        `${API_URL}/api/shelter/meetings/${meetingId}`,
+        `${API_URL}/api/shelter/meetings/${meetingToDelete._id}`,
         { withCredentials: true }
       );
 
       if (res.data.success) {
-        setMeetings(meetings.filter((m) => m._id !== meetingId));
+        setMeetings(meetings.filter((m) => m._id !== meetingToDelete._id));
+        setToast({
+          type: "success",
+          title: "Meeting Deleted",
+          message: "Meeting removed successfully",
+        });
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete meeting");
+      setToast({
+        type: "error",
+        title: "Delete Failed",
+        message: err.response?.data?.message || "Unable to delete meeting",
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setMeetingToDelete(null);
     }
   };
 
@@ -315,7 +333,6 @@ const ShelterMeetings = () => {
       <NavbarShelter onLogout={handleLogout} />
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl p-4 md:p-6 lg:p-8">
-          {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-white tracking-tight">
@@ -334,7 +351,6 @@ const ShelterMeetings = () => {
             </button>
           </div>
 
-          {/* Meetings List */}
           <div className="space-y-4">
             {meetings.length === 0 ? (
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-12 text-center">
@@ -347,153 +363,162 @@ const ShelterMeetings = () => {
                 </p>
               </div>
             ) : (
-              meetings.map((meeting) => {
-                const canInteract = canJoinOrComplete(meeting.scheduledAt);
+              meetings
+                .filter((meeting) => meeting.status !== "open")
+                .map((meeting) => {
+                  const canInteract = canJoinOrComplete(meeting.scheduledAt);
 
-                return (
-                  <div
-                    key={meeting._id}
-                    className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6 transition-all hover:border-[#4a5568]/40"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <h3 className="text-xl font-bold text-white">
-                            {meeting.ownerName}
-                          </h3>
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadge(
-                              meeting.status
-                            )}`}
-                          >
-                            {meeting.status}
-                          </span>
-                        </div>
+                  return (
+                    <div
+                      key={meeting._id}
+                      className={`relative rounded-2xl border bg-gradient-to-br from-[#31323e] to-[#2a2c38] p-6 shadow-lg transition-all hover:shadow-xl ${
+                        meeting.status === "scheduled"
+                          ? "border-emerald-500/30"
+                          : meeting.status === "cancelled"
+                          ? "border-red-500/30"
+                          : "border-[#4a5568]/30"
+                      }`}
+                    >
+                      <div
+                        className={`absolute left-0 top-6 h-10 w-1 rounded-r-full ${
+                          meeting.status === "scheduled"
+                            ? "bg-emerald-400"
+                            : meeting.status === "cancelled"
+                            ? "bg-red-400"
+                            : "bg-gray-400"
+                        }`}
+                      />
 
-                        <div className="space-y-2 text-sm text-[#bfc0d1]">
-                          <div className="flex items-center gap-2">
-                            <Calendar size={16} className="text-[#4a5568]" />
-                            <span>
+                      <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                        <div className="flex-1 space-y-4">
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-2xl font-bold text-white">
+                              {meeting.ownerName}
+                            </h3>
+
+                            <span
+                              className={`rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-wide ${getStatusBadge(
+                                meeting.status
+                              )}`}
+                            >
+                              {meeting.status}
+                            </span>
+                          </div>
+
+                          {/* META INFO */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-[#bfc0d1]">
+                            <div className="flex items-center gap-2">
+                              <Calendar size={16} className="text-[#4a5568]" />
                               {new Date(
                                 meeting.scheduledAt
                               ).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock size={16} className="text-[#4a5568]" />
-                            <span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Clock size={16} className="text-[#4a5568]" />
                               {new Date(
                                 meeting.scheduledAt
                               ).toLocaleTimeString()}{" "}
-                              ({meeting.durationMinutes} min)
-                            </span>
-                          </div>
-                          {meeting.meetingLink && (
-                            <div className="flex items-center gap-2">
-                              <Video size={16} className="text-[#4a5568]" />
-                              <span className="text-[#4a5568] truncate">
+                              · {meeting.durationMinutes} min
+                            </div>
+
+                            {meeting.meetingPlatform && (
+                              <div className="flex items-center gap-2">
+                                <Video size={16} className="text-[#4a5568]" />
                                 {meeting.meetingPlatform}
-                              </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {meeting.notes && (
+                            <div className="rounded-xl bg-black/20 p-4 text-sm text-[#bfc0d1]">
+                              {meeting.notes}
                             </div>
                           )}
-                          {meeting.notes && (
-                            <p className="mt-2 text-[#bfc0d1]/80">
-                              {meeting.notes}
-                            </p>
-                          )}
+
                           {meeting.status === "cancelled" && (
-                            <div className="mt-3 rounded-lg bg-red-500/10 p-3 border border-red-500/20">
-                              <p className="text-red-400 text-xs font-semibold">
+                            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+                              <p className="text-red-400 font-semibold text-sm">
                                 Cancelled by {meeting.cancelledBy}
                               </p>
-                              <p className="text-red-400/80 text-xs mt-1">
+                              <p className="text-red-400/80 text-sm mt-1">
                                 {meeting.cancellationReason}
                               </p>
                             </div>
                           )}
                         </div>
-                      </div>
 
-                      <div className="flex gap-2">
-                        {meeting.status === "scheduled" && (
-                          <>
-                            <div className="relative group">
-                              <button
-                                onClick={() =>
-                                  meeting.meetingLink &&
-                                  canInteract &&
-                                  window.open(meeting.meetingLink, "_blank")
-                                }
-                                disabled={!canInteract}
-                                className={`rounded-lg p-2 transition-all ${
-                                  canInteract
-                                    ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
-                                    : "bg-[#31323e] text-[#bfc0d1]/30 cursor-not-allowed"
-                                }`}
-                                title={canInteract ? "Join Meeting" : ""}
-                              >
-                                <Video size={18} />
-                              </button>
-                              {!canInteract && (
-                                <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 bg-[#1e202c] border border-[#4a5568]/20 rounded-lg p-2 text-xs text-[#bfc0d1]">
-                                  Meeting will open 10 minutes before scheduled
-                                  time
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="relative group">
-                              <button
-                                onClick={() => handleMarkComplete(meeting._id)}
-                                disabled={!canInteract}
-                                className={`rounded-lg p-2 transition-all ${
-                                  canInteract
-                                    ? "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"
-                                    : "bg-[#31323e] text-[#bfc0d1]/30 cursor-not-allowed"
-                                }`}
-                                title={canInteract ? "Mark as Complete" : ""}
-                              >
-                                <CheckCircle2 size={18} />
-                              </button>
-                              {!canInteract && (
-                                <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block w-48 bg-[#1e202c] border border-[#4a5568]/20 rounded-lg p-2 text-xs text-[#bfc0d1]">
-                                  You can mark this meeting as complete once it
-                                  starts
-                                </div>
-                              )}
-                            </div>
-                          </>
-                        )}
-
-                        {meeting.status !== "completed" &&
-                          meeting.status !== "cancelled" && (
-                            <>
-                              <button
-                                onClick={() => openEditModal(meeting)}
-                                className="rounded-lg bg-[#4a5568]/20 p-2 text-[#4a5568] transition-all hover:bg-[#4a5568]/30"
-                              >
-                                <Edit size={18} />
-                              </button>
-                              <button
-                                onClick={() => openCancelModal(meeting)}
-                                className="rounded-lg bg-red-500/20 p-2 text-red-400 transition-all hover:bg-red-500/30"
-                              >
-                                <AlertTriangle size={18} />
-                              </button>
-                            </>
+                        <div className="flex flex-wrap items-center gap-3">
+                          {meeting.status === "scheduled" && (
+                            <button
+                              onClick={() =>
+                                meeting.meetingLink &&
+                                canJoinOrComplete(meeting.scheduledAt) &&
+                                window.open(meeting.meetingLink, "_blank")
+                              }
+                              disabled={!canJoinOrComplete(meeting.scheduledAt)}
+                              className={`flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all ${
+                                canJoinOrComplete(meeting.scheduledAt)
+                                  ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                                  : "bg-gray-600/30 text-gray-400 cursor-not-allowed"
+                              }`}
+                            >
+                              <Video size={18} />
+                              Join Meeting
+                            </button>
                           )}
 
-                        <button
-                          onClick={() => handleDeleteMeeting(meeting._id)}
-                          className="rounded-lg bg-red-500/20 p-2 text-red-400 transition-all hover:bg-red-500/30"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                          {meeting.status === "scheduled" && (
+                            <button
+                              onClick={() => handleMarkComplete(meeting._id)}
+                              disabled={!canJoinOrComplete(meeting.scheduledAt)}
+                              className={`flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all ${
+                                canJoinOrComplete(meeting.scheduledAt)
+                                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                                  : "bg-gray-600/30 text-gray-400 cursor-not-allowed"
+                              }`}
+                            >
+                              <CheckCircle2 size={18} />
+                              Mark Complete
+                            </button>
+                          )}
+
+                          {meeting.status !== "completed" &&
+                            meeting.status !== "cancelled" && (
+                              <>
+                                <button
+                                  onClick={() => openEditModal(meeting)}
+                                  className="rounded-xl bg-[#4a5568]/20 p-3 text-[#bfc0d1] hover:bg-[#4a5568]/30"
+                                  title="Edit"
+                                >
+                                  <Edit size={18} />
+                                </button>
+
+                                <button
+                                  onClick={() => openCancelModal(meeting)}
+                                  className="rounded-xl bg-red-500/20 p-3 text-red-400 hover:bg-red-500/30"
+                                  title="Cancel"
+                                >
+                                  <AlertTriangle size={18} />
+                                </button>
+                              </>
+                            )}
+
+                          <button
+                            onClick={() => {
+                              setMeetingToDelete(meeting);
+                              setShowDeleteModal(true);
+                            }}
+                            className="rounded-xl bg-red-500/20 p-3 text-red-400 hover:bg-red-500/30"
+                            title="Delete"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })
+                  );
+                })
             )}
           </div>
         </div>
@@ -876,6 +901,31 @@ const ShelterMeetings = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {showDeleteModal && meetingToDelete && (
+        <ConfirmationDialog
+          isOpen={showDeleteModal}
+          title="Delete Meeting"
+          message="This action cannot be undone. Are you sure you want to delete this meeting?"
+          confirmText="Delete"
+          cancelText="Cancel"
+          type="error"
+          onConfirm={handleDeleteMeeting}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setMeetingToDelete(null);
+          }}
+        />
+      )}
+
+      {toast && (
+        <ShelterToast
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );

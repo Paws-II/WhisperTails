@@ -30,6 +30,7 @@ const App = () => {
         setActiveIndex={setActiveIndex}
         onThemeChange={setThemeIndex}
       />
+
       <Demo />
     </div>
   );

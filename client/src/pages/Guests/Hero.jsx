@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import HeroNarrative from "../../components/Guests/Hero/HeroNarrative";
-import Navbar from "./Navbar";
+
 import HeroShowcase from "../../components/Guests/Hero/HeroShowcase";
 import dog from "../../assets/Guests/animals/dog.png";
 import cat from "../../assets/Guests/animals/cat.png";
 import bunny from "../../assets/Guests/animals/bunny.png";
 import otter from "../../assets/Guests/animals/otter.png";
 import panda from "../../assets/Guests/animals/panda.png";
+import NextSection from "../../components/Guests/Hero/NextSection";
 
 const HERO_SLIDES = [
   {
@@ -370,6 +371,8 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
           />
         </div>
       </section>
+
+      <NextSection />
     </div>
   );
 };

@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import HeroNarrative from "../../components/Guests/Hero/HeroNarrative";
 
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
+
 import HeroShowcase from "../../components/Guests/Hero/HeroShowcase";
 import dog from "../../assets/Guests/animals/dog.png";
 import cat from "../../assets/Guests/animals/cat.png";
@@ -80,15 +84,6 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
   const narrativeCenterRef = useRef(null);
 
   const narrativeTlRef = useRef(null);
-  const narrativeIsInView = useRef(false);
-  const narrativeIsAnimating = useRef(false);
-  const narrativeIsComplete = useRef(false);
-  const narrativeTargetProgress = useRef(0);
-  const narrativeTouchStartY = useRef(0);
-  const nextSectionImageRef = useRef(null);
-
-  const WHEEL_STEP = 0.035;
-  const TOUCH_STEP = 0.06;
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -291,36 +286,17 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
   }, [activeIndex, isPaused]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        narrativeIsInView.current = entry.isIntersecting;
-      },
-      { threshold: 0.6 }
-    );
-
-    if (narrativeSectionRef.current) {
-      observer.observe(narrativeSectionRef.current);
-    }
-
     gsap.set(narrativeLeftRef.current, { rotate: -15, x: 0, y: 0, zIndex: 10 });
     gsap.set(narrativeRightRef.current, { rotate: 15, x: 0, y: 0, zIndex: 10 });
     gsap.set(narrativeCenterRef.current, { x: 0, y: 0, zIndex: 20 });
 
     const tl = gsap.timeline({
-      paused: true,
-      onStart: () => {
-        narrativeIsAnimating.current = true;
-        document.body.style.overflow = "hidden";
-      },
-      onComplete: () => {
-        narrativeIsAnimating.current = false;
-        narrativeIsComplete.current = true;
-        document.body.style.overflow = "";
-      },
-      onReverseComplete: () => {
-        narrativeIsAnimating.current = false;
-        narrativeIsComplete.current = false;
-        document.body.style.overflow = "";
+      scrollTrigger: {
+        trigger: narrativeSectionRef.current,
+        start: "top top",
+        end: "+=30%",
+        scrub: 0.4,
+        pin: false,
       },
     });
 
@@ -330,8 +306,8 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         x: 140,
         rotate: 0,
         scale: 0.95,
-        duration: 0.7,
-        ease: "power3.out",
+        duration: 1.5,
+        ease: "power2.out",
       },
       0
     );
@@ -342,8 +318,8 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         x: -140,
         rotate: 0,
         scale: 0.95,
-        duration: 0.7,
-        ease: "power3.out",
+        duration: 1.5,
+        ease: "power2.out",
       },
       0
     );
@@ -354,7 +330,12 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         narrativeRightRef.current,
         narrativeCenterRef.current,
       ],
-      { y: 30, duration: 0.35, ease: "power2.out" }
+      {
+        y: 30,
+        duration: 0.6,
+        ease: "power2.out",
+      },
+      1
     );
 
     tl.to(
@@ -363,7 +344,12 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         narrativeRightRef.current,
         narrativeCenterRef.current,
       ],
-      { x: "+=670", duration: 2, ease: "power2.out" }
+      {
+        x: "+=670",
+        duration: 3,
+        ease: "power2.out",
+      },
+      2
     );
 
     tl.to(
@@ -372,73 +358,19 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         narrativeRightRef.current,
         narrativeCenterRef.current,
       ],
-      { y: "+=590", duration: 2, ease: "power2.out" }
+      {
+        y: "+=500",
+        duration: 1.5,
+        ease: "power2.out",
+      },
+      3
     );
 
     narrativeTlRef.current = tl;
 
-    const driveTimeline = (direction, step) => {
-      narrativeTargetProgress.current = gsap.utils.clamp(
-        0,
-        1,
-        narrativeTargetProgress.current + (direction === "down" ? step : -step)
-      );
-
-      gsap.to(narrativeTlRef.current, {
-        progress: narrativeTargetProgress.current,
-        duration: 0.45,
-        ease: "power2.out",
-        overwrite: true,
-      });
-    };
-
-    const onWheel = (e) => {
-      if (!narrativeIsInView.current) return;
-
-      const p = narrativeTargetProgress.current;
-      if (p > 0 && p < 1) e.preventDefault();
-
-      if (e.deltaY > 0) {
-        driveTimeline("down", WHEEL_STEP);
-      } else if (e.deltaY < 0) {
-        driveTimeline("up", WHEEL_STEP);
-      }
-    };
-
-    const onTouchStart = (e) => {
-      narrativeTouchStartY.current = e.touches[0].clientY;
-    };
-
-    const onTouchMove = (e) => {
-      if (!narrativeIsInView.current) return;
-
-      const delta = narrativeTouchStartY.current - e.touches[0].clientY;
-
-      if (Math.abs(delta) < 10) return;
-
-      const p = narrativeTargetProgress.current;
-      if (p > 0 && p < 1) e.preventDefault();
-
-      if (delta > 0) {
-        driveTimeline("down", TOUCH_STEP);
-      } else {
-        driveTimeline("up", TOUCH_STEP);
-      }
-
-      narrativeTouchStartY.current = e.touches[0].clientY;
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-
     return () => {
-      observer.disconnect();
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
+      if (tl.scrollTrigger) tl.scrollTrigger.kill();
       tl.kill();
-      document.body.style.overflow = "";
     };
   }, []);
 
@@ -524,14 +456,11 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
     >
       <section
         ref={heroSectionRef}
-        className="
-    relative
-    min-h-[200vh]   /* IMPORTANT: taller than viewport */
-    text-[#bfc0d1]
-    overflow-hidden
-  "
+        className="relative
+        min-h-[300vh] 
+        text-[#bfc0d1]
+        overflow-hidden "
       >
-        {/* FIRST VIEWPORT */}
         <div className="min-h-screen flex items-center pt-20 px-6">
           <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-26 items-center">
             <HeroNarrative
@@ -562,7 +491,6 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
           </div>
         </div>
 
-        {/* SECOND VIEWPORT — SAME SECTION */}
         <div className="min-h-screen">
           <NextSection />
         </div>

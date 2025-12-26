@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
 const HeroNarrative = ({
   titleRef,
@@ -50,19 +50,19 @@ const HeroNarrative = ({
         <img
           ref={leftRef}
           src={images.left}
-          className="absolute top-16 left-[20px] w-[260px] rounded-2xl shadow-2xl"
+          className="absolute top-16 left-5 w-[260px] rounded-2xl "
           draggable={false}
         />
         <img
           ref={rightRef}
           src={images.right}
-          className="absolute top-16 right-[20px] w-[260px] rounded-2xl shadow-2xl"
+          className="absolute top-16 right-5 w-[260px] rounded-2xl "
           draggable={false}
         />
         <img
           ref={centerRef}
           src={images.center}
-          className="absolute top-14 left-1/2 -translate-x-1/2 w-[260px] rounded-2xl shadow-2xl"
+          className="absolute top-14 left-1/2 -translate-x-1/2 w-[260px] rounded-2xl"
           draggable={false}
         />
       </div>

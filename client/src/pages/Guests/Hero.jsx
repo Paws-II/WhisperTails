@@ -16,6 +16,11 @@ import NextSection from "../../components/Guests/Hero/NextSection";
 import card1 from "../../assets/card/image-part-001.png";
 import card2 from "../../assets/card/image-part-002.png";
 import card3 from "../../assets/card/image-part-003.png";
+import card4 from "../../assets/card/image-part-005.png";
+import card5 from "../../assets/card/men-animal.png";
+import ren from "../../assets/card/rengoku.png";
+import tan from "../../assets/card/tanjirou.png";
+import zen from "../../assets/card/zenitsu.png";
 
 const HERO_SLIDES = [
   {
@@ -84,6 +89,10 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
   const narrativeCenterRef = useRef(null);
 
   const narrativeTlRef = useRef(null);
+
+  const originalCenterImageRef = useRef(null);
+  const isImageFlippedRef = useRef(false);
+  const IMAGE_SWAP_DELAY = 0.4;
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -286,9 +295,19 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
   }, [activeIndex, isPaused]);
 
   useEffect(() => {
+    if (!originalCenterImageRef.current) {
+      originalCenterImageRef.current = narrativeCenterRef.current.src;
+    }
     gsap.set(narrativeLeftRef.current, { rotate: -15, x: 0, y: 0, zIndex: 10 });
     gsap.set(narrativeRightRef.current, { rotate: 15, x: 0, y: 0, zIndex: 10 });
     gsap.set(narrativeCenterRef.current, { x: 0, y: 0, zIndex: 20 });
+
+    gsap.set(narrativeCenterRef.current, {
+      transformStyle: "preserve-3d",
+      transformPerspective: 1200,
+      backfaceVisibility: "hidden",
+      rotationY: 0,
+    });
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -297,6 +316,46 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         end: "+=30%",
         scrub: 0.4,
         pin: false,
+
+        onEnter: () => {
+          if (isImageFlippedRef.current) return;
+          isImageFlippedRef.current = true;
+
+          gsap.to(narrativeCenterRef.current, {
+            rotationY: 90,
+            duration: 0.35,
+            ease: "power2.in",
+            onComplete: () => {
+              narrativeCenterRef.current.src = card5;
+
+              gsap.to(narrativeCenterRef.current, {
+                rotationY: 0,
+                duration: 0.35,
+                ease: "power2.out",
+              });
+            },
+          });
+        },
+
+        onLeaveBack: () => {
+          if (!isImageFlippedRef.current) return;
+          isImageFlippedRef.current = false;
+
+          gsap.to(narrativeCenterRef.current, {
+            rotationY: -90,
+            duration: 0.35,
+            ease: "power2.in",
+            onComplete: () => {
+              narrativeCenterRef.current.src = originalCenterImageRef.current;
+
+              gsap.to(narrativeCenterRef.current, {
+                rotationY: 0,
+                duration: 0.35,
+                ease: "power2.out",
+              });
+            },
+          });
+        },
       },
     });
 
@@ -306,6 +365,7 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         x: 140,
         rotate: 0,
         scale: 0.95,
+        opacity: 0,
         duration: 1.5,
         ease: "power2.out",
       },
@@ -318,6 +378,7 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         x: -140,
         rotate: 0,
         scale: 0.95,
+        opacity: 0,
         duration: 1.5,
         ease: "power2.out",
       },
@@ -457,7 +518,7 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
       <section
         ref={heroSectionRef}
         className="relative
-        min-h-[300vh] 
+        min-h-full
         text-[#bfc0d1]
         overflow-hidden "
       >

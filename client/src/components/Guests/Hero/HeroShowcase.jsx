@@ -3,7 +3,6 @@ import { Heart } from "lucide-react";
 
 const HeroShowcase = ({
   slides,
-  activeIndex,
   cardRefs,
   carouselContainerRef,
   states,

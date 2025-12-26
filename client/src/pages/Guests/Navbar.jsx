@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Menu, PawPrint, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-/* -------------------- config -------------------- */
-
 const NAV_LINKS = [
   { text: "Home", link: "#home" },
   { text: "Browse Pets", link: "#browse" },
@@ -40,8 +38,6 @@ const THEMES = [
   },
 ];
 
-/* -------------------- component -------------------- */
-
 const Navbar = ({
   isScrolled,
   mobileMenuOpen,
@@ -75,14 +71,10 @@ const Navbar = ({
 
   const theme = lockedTheme || currentTheme;
 
-  /* -------------------- handlers -------------------- */
-
   const goTo = (path) => {
     setMobileMenuOpen(false);
     navigate(path);
   };
-
-  /* -------------------- render -------------------- */
 
   return (
     <nav
@@ -105,7 +97,6 @@ const Navbar = ({
         }}
       >
         <div className="flex items-center justify-between py-3">
-          {/* Logo */}
           <div
             onClick={() => goTo("/")}
             className="flex cursor-pointer items-center gap-3"
@@ -142,7 +133,6 @@ const Navbar = ({
             </span>
           </div>
 
-          {/* Desktop nav */}
           <div className="hidden lg:flex items-center space-x-1">
             {NAV_LINKS.map((item, index) => (
               <button
@@ -170,7 +160,6 @@ const Navbar = ({
             ))}
           </div>
 
-          {/* Desktop actions */}
           <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={() => goTo("/login")}
@@ -193,7 +182,6 @@ const Navbar = ({
             </button>
           </div>
 
-          {/* Mobile toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden rounded-xl p-2.5 text-white/80"
@@ -202,7 +190,6 @@ const Navbar = ({
           </button>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenuOpen && (
           <div
             className="mt-3 space-y-2 rounded-3xl p-4 lg:hidden"
@@ -224,7 +211,6 @@ const Navbar = ({
         )}
       </div>
 
-      {/* animations */}
       <style>{`
         @keyframes paw-print {
           0%,100% { opacity:.7; transform:scale(.95) }

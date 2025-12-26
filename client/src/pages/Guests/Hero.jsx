@@ -12,7 +12,7 @@ import cat from "../../assets/Guests/animals/cat.png";
 import bunny from "../../assets/Guests/animals/bunny.png";
 import otter from "../../assets/Guests/animals/otter.png";
 import panda from "../../assets/Guests/animals/panda.png";
-import NextSection from "../../components/Guests/Hero/NextSection";
+import HeroCompanion from "../../components/Guests/Hero/HeroCompanion";
 import card1 from "../../assets/card/image-part-001.png";
 import card2 from "../../assets/card/image-part-002.png";
 import card3 from "../../assets/card/image-part-003.png";
@@ -420,8 +420,8 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         narrativeCenterRef.current,
       ],
       {
-        y: "+=500",
-        duration: 1.5,
+        y: "+=670",
+        duration: 2,
         ease: "power2.out",
       },
       3
@@ -553,7 +553,7 @@ const Hero = ({ activeIndex, setActiveIndex, onThemeChange }) => {
         </div>
 
         <div className="min-h-screen">
-          <NextSection />
+          <HeroCompanion narrativeCenterRef={narrativeCenterRef} />
         </div>
       </section>
     </div>

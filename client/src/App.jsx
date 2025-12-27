@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Hero from "./pages/Guests/Hero";
 import Navbar from "./pages/Guests/Navbar";
 import TwoWorldsOpening from "./pages/Guests/TwoWorldsOpening";
+import HowItWorks from "./pages/Guests/HowItWorks";
 
 const App = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,6 +33,8 @@ const App = () => {
       />
 
       <TwoWorldsOpening />
+
+      <HowItWorks />
     </div>
   );
 };

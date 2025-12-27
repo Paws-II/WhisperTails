@@ -11,45 +11,6 @@ import img009 from "../../assets/twoWorlds/009.png";
 import img010 from "../../assets/twoWorlds/010.png";
 
 const TwoWorldsOpening = () => {
-  <style>{`
-        @keyframes float {
-          0% {
-            transform: translate(0, 0);
-          }
-          100% {
-            transform: translate(-40px, -40px);
-          }
-        }
-        .scroll-heading {
-          transform: translateY(-40px);
-          font-family: "Cormorant Garamond", "Playfair Display", serif;
-          font-size: clamp(2.5rem, 7vw, 5rem);
-          font-weight: 600;
-          color: #ffffff;
-          text-align: center;
-          text-shadow: 0 0 25px rgba(255, 255, 255, 0.25),
-            0 8px 40px rgba(0, 0, 0, 0.5);
-          pointer-events: none;
-          white-space: nowrap;
-          letter-spacing: 0.02em;
-        }
-        @keyframes pulse {
-          0%,
-          100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.7;
-          }
-        }
-        .card-left,
-        .card-right {
-          transform: translateZ(0);
-          backface-visibility: hidden;
-          perspective: 1000px;
-        }
-      `}</style>;
-
   const mainRef = useRef(null);
 
   const cardImages = [
@@ -224,24 +185,67 @@ const TwoWorldsOpening = () => {
       });
 
       gsap.fromTo(
-        ".scroll-heading",
+        ".heading-soft",
         {
           opacity: 0,
-          y: 80,
-          letterSpacing: "0.3em",
-          filter: "blur(10px)",
+          y: 60,
+          letterSpacing: "0.35em",
+          filter: "blur(8px)",
+        },
+        {
+          opacity: 1,
+          y: 0,
+          letterSpacing: "0.08em",
+          filter: "blur(0px)",
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".heading-soft",
+            start: "top 80%",
+            end: "top 55%",
+            scrub: true,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        ".heading-cinematic",
+        {
+          opacity: 0,
+          scale: 0.85,
+          y: 100,
+          filter: "blur(14px)",
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          filter: "blur(0px)",
+          ease: "power4.out",
+          scrollTrigger: {
+            trigger: ".heading-cinematic",
+            start: "top 85%",
+            end: "top 45%",
+            scrub: true,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        ".heading-ethereal",
+        {
+          opacity: 0,
+          y: -40,
+          letterSpacing: "0.25em",
         },
         {
           opacity: 1,
           y: 0,
           letterSpacing: "0.05em",
-          filter: "blur(0px)",
-          duration: 1.2,
-          ease: "power3.out",
+          ease: "sine.out",
           scrollTrigger: {
-            trigger: ".scroll-heading-wrapper",
+            trigger: ".heading-ethereal",
             start: "top 75%",
-            end: "top 45%",
+            end: "top 50%",
             scrub: true,
           },
         }
@@ -313,6 +317,20 @@ const TwoWorldsOpening = () => {
           }}
         />
 
+        <div className="scroll-heading-wrapper my-[clamp(140px,18vh,220px)] flex justify-center items-center relative">
+          <div
+            className="absolute w-[600px] h-[600px] rounded-full pointer-events-none opacity-30"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(120,160,200,0.4) 0%, rgba(160,210,255,0.2) 30%, transparent 70%)",
+              filter: "blur(60px)",
+            }}
+          />
+          <h2 className="scroll-heading heading-soft relative z-10">
+            Stillness reveals more than motion.
+          </h2>
+        </div>
+
         {cardImages.map((card, index) => (
           <React.Fragment key={index}>
             <div className="card-row flex justify-center items-center gap-[clamp(30px,6vw,80px)] my-[clamp(180px,22vh,280px)] px-5">
@@ -332,7 +350,7 @@ const TwoWorldsOpening = () => {
                       "linear-gradient(135deg, rgba(120,160,200,0.2) 0%, rgba(5,10,18,0.3) 100%)",
                   }}
                 />
-                <div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div
                   className="absolute bottom-6 left-6 right-6 text-white font-bold text-[clamp(1.1rem,2.5vw,1.4rem)] tracking-wide"
                   style={{
@@ -361,7 +379,7 @@ const TwoWorldsOpening = () => {
                       "linear-gradient(135deg, rgba(120,160,200,0.2) 0%, rgba(5,10,18,0.3) 100%)",
                   }}
                 />
-                <div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div
                   className="absolute bottom-6 left-6 right-6 text-white font-bold text-[clamp(1.1rem,2.5vw,1.4rem)] tracking-wide"
                   style={{
@@ -385,7 +403,22 @@ const TwoWorldsOpening = () => {
                     filter: "blur(60px)",
                   }}
                 />
-                <h2 className="scroll-heading relative z-10">
+                <h2 className="scroll-heading heading-cinematic relative z-10">
+                  A moment is all it takes.
+                </h2>
+              </div>
+            )}
+            {index === 3 && (
+              <div className="scroll-heading-wrapper my-[clamp(140px,18vh,220px)] flex justify-center items-center relative">
+                <div
+                  className="absolute w-[600px] h-[600px] rounded-full pointer-events-none opacity-30"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(120,160,200,0.4) 0%, rgba(160,210,255,0.2) 30%, transparent 70%)",
+                    filter: "blur(60px)",
+                  }}
+                />
+                <h2 className="scroll-heading heading-ethereal relative z-10">
                   A moment is all it takes.
                 </h2>
               </div>
@@ -393,6 +426,45 @@ const TwoWorldsOpening = () => {
           </React.Fragment>
         ))}
       </div>
+
+      <style>{`
+        @keyframes float {
+          0% {
+            transform: translate(0, 0);
+          }
+          100% {
+            transform: translate(-40px, -40px);
+          }
+        }
+        .scroll-heading {
+          transform: translateY(-40px);
+          font-family: "Cormorant Garamond", "Playfair Display", serif;
+          font-size: clamp(2.5rem, 7vw, 5rem);
+          font-weight: 600;
+          color: #ffffff;
+          text-align: center;
+          text-shadow: 0 0 25px rgba(255, 255, 255, 0.25),
+            0 8px 40px rgba(0, 0, 0, 0.5);
+          pointer-events: none;
+          white-space: nowrap;
+          letter-spacing: 0.02em;
+        }
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.7;
+          }
+        }
+        .card-left,
+        .card-right {
+          transform: translateZ(0);
+          backface-visibility: hidden;
+          perspective: 1000px;
+        }
+      `}</style>
     </div>
   );
 };

@@ -6,40 +6,56 @@ gsap.registerPlugin(ScrollTrigger);
 
 import image from "../../assets/expansion/001.png";
 
-const ScrollHeroExpansion = () => {
-  const sectionRef = useRef(null);
-  const pinRef = useRef(null);
+const Conclusion = () => {
+  const containerRef = useRef(null);
+  const stickyRef = useRef(null);
   const cardRef = useRef(null);
   const textRef = useRef(null);
   const textBgRef = useRef(null);
 
   useEffect(() => {
+    ScrollTrigger.config({ markers: false });
+
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
+      // Main expansion animation - pinned scroll
+      const expansionTimeline = gsap.timeline({
         scrollTrigger: {
-          trigger: sectionRef.current,
+          trigger: containerRef.current,
           start: "top top",
-          end: "+=300%",
-          scrub: 2.5,
-          pin: pinRef.current,
+          end: "bottom bottom",
+          scrub: true,
+          pin: stickyRef.current,
           anticipatePin: 1,
         },
       });
 
-      tl.to(cardRef.current, {
-        width: "100vw",
-        height: "100vh",
-        borderRadius: 0,
-        ease: "power2.inOut",
-      })
+      // Card expansion with simultaneous scale
+      expansionTimeline
+        .fromTo(
+          cardRef.current,
+          {
+            width: "60vw",
+            height: "55vh",
+            borderRadius: "48px",
+          },
+          {
+            width: "100%",
+            height: "100vh",
+            borderRadius: "0em",
+            duration: 0.6,
+            ease: "power2.inOut",
+          }
+        )
         .to(
           cardRef.current,
           {
             scale: 1.05,
+            duration: 0.4,
             ease: "power3.inOut",
           },
-          "<"
+          "<0.2"
         )
+        // Text background reveal
         .fromTo(
           textBgRef.current,
           {
@@ -51,25 +67,40 @@ const ScrollHeroExpansion = () => {
             opacity: 1,
             scale: 1,
             filter: "blur(0px)",
+            duration: 0.3,
             ease: "power2.out",
           },
-          "-=0.5"
+          "-=0.2"
         )
+        // Text content fade in
         .fromTo(
           textRef.current,
           { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, ease: "power2.out" },
-          "<0.15"
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.2,
+            ease: "power2.out",
+          },
+          "<0.1"
         );
-    }, sectionRef);
+    }, containerRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} style={{ height: "300vh", position: "relative" }}>
+    <div
+      ref={containerRef}
+      className="animate_container column_container"
+      style={{
+        height: "400vh",
+        position: "relative",
+      }}
+    >
       <div
-        ref={pinRef}
+        ref={stickyRef}
+        className="sticky_cont"
         style={{
           position: "sticky",
           top: 0,
@@ -80,10 +111,12 @@ const ScrollHeroExpansion = () => {
           overflow: "hidden",
           background:
             "radial-gradient(circle at 50% 40%, #0f1f33 0%, #081423 40%, #03070c 75%, #000 100%)",
+          zIndex: 1000,
         }}
       >
         <div
           ref={cardRef}
+          className="animate_box"
           style={{
             width: "60vw",
             height: "55vh",
@@ -193,9 +226,10 @@ const ScrollHeroExpansion = () => {
                   lineHeight: 1.9,
                   color: "rgba(255,255,255,0.78)",
                   fontWeight: 300,
+                  margin: 0,
                 }}
               >
-                Bonds like these aren’t built through control or urgency.
+                Bonds like these aren't built through control or urgency.
                 <br />
                 They form when someone stays gentle long enough
                 <br />
@@ -212,14 +246,14 @@ const ScrollHeroExpansion = () => {
                   color: "rgba(255,255,255,0.9)",
                 }}
               >
-                Trust doesn’t rush.
+                Trust doesn't rush.
               </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
-export default ScrollHeroExpansion;
+export default Conclusion;

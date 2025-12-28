@@ -155,7 +155,7 @@ const TwoWorldsOpening = () => {
 
         ScrollTrigger.create({
           trigger: ".content-section",
-          start: "top 60%",
+          start: "top 40%",
           end: "bottom 20%",
           scrub: 0.2,
           onUpdate: (self) => {
@@ -188,9 +188,9 @@ const TwoWorldsOpening = () => {
         ".heading-soft",
         {
           opacity: 0,
-          y: 60,
+          y: 80,
           letterSpacing: "0.35em",
-          filter: "blur(8px)",
+          filter: "blur(10px)",
         },
         {
           opacity: 1,
@@ -200,9 +200,9 @@ const TwoWorldsOpening = () => {
           ease: "power3.out",
           scrollTrigger: {
             trigger: ".heading-soft",
-            start: "top 80%",
+            start: "top 85%",
             end: "top 55%",
-            scrub: true,
+            scrub: 0.6,
           },
         }
       );
@@ -211,9 +211,9 @@ const TwoWorldsOpening = () => {
         ".heading-cinematic",
         {
           opacity: 0,
-          scale: 0.85,
-          y: 100,
-          filter: "blur(14px)",
+          scale: 0.9,
+          y: 120,
+          filter: "blur(16px)",
         },
         {
           opacity: 1,
@@ -223,30 +223,9 @@ const TwoWorldsOpening = () => {
           ease: "power4.out",
           scrollTrigger: {
             trigger: ".heading-cinematic",
-            start: "top 85%",
+            start: "top 90%",
             end: "top 45%",
-            scrub: true,
-          },
-        }
-      );
-
-      gsap.fromTo(
-        ".heading-ethereal",
-        {
-          opacity: 0,
-          y: -40,
-          letterSpacing: "0.25em",
-        },
-        {
-          opacity: 1,
-          y: 0,
-          letterSpacing: "0.05em",
-          ease: "sine.out",
-          scrollTrigger: {
-            trigger: ".heading-ethereal",
-            start: "top 75%",
-            end: "top 50%",
-            scrub: true,
+            scrub: 0.8,
           },
         }
       );
@@ -277,7 +256,7 @@ const TwoWorldsOpening = () => {
   return (
     <div
       ref={mainRef}
-      className="min-h-screen relative overflow-hidden text-white"
+      className="relative overflow-hidden text-white"
       style={{
         background:
           "radial-gradient(circle at 50% 50%, #0f1f33 0%, #081423 35%, #03070c 70%, #000000 100%)",
@@ -334,10 +313,10 @@ const TwoWorldsOpening = () => {
         {cardImages.map((card, index) => (
           <React.Fragment key={index}>
             <div
-              className={`card-row flex justify-center items-center gap-[clamp(30px,6vw,80px)] px-5
+              className={`card-row flex justify-center items-center gap-[clamp(16px,3.5vw,48px)] px-5
   ${
     index === cardImages.length - 1
-      ? "mt-[clamp(180px,22vh,280px)] mb-[80px]"
+      ? "mt-[clamp(180px,22vh,280px)] mb-0"
       : "my-[clamp(180px,22vh,280px)]"
   }`}
             >

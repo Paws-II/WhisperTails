@@ -272,7 +272,7 @@ const HowItWorks = () => {
               position: "relative",
             }}
           >
-            How Whisper Tails Works
+            Your Application Journey!!
           </h2>
 
           <div

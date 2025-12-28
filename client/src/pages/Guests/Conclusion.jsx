@@ -17,7 +17,6 @@ const Conclusion = () => {
     ScrollTrigger.config({ markers: false });
 
     const ctx = gsap.context(() => {
-      // Main expansion animation - pinned scroll
       const expansionTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
@@ -29,7 +28,6 @@ const Conclusion = () => {
         },
       });
 
-      // Card expansion with simultaneous scale
       expansionTimeline
         .fromTo(
           cardRef.current,
@@ -55,7 +53,7 @@ const Conclusion = () => {
           },
           "<0.2"
         )
-        // Text background reveal
+
         .fromTo(
           textBgRef.current,
           {
@@ -72,7 +70,6 @@ const Conclusion = () => {
           },
           "-=0.2"
         )
-        // Text content fade in
         .fromTo(
           textRef.current,
           { opacity: 0, y: 24 },

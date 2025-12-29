@@ -16,8 +16,11 @@ const applicationManagementController = {
       const query = { shelterId };
       if (petId) query.petId = petId;
 
-      // Fetch active applications
-      let activeQuery = { ...query };
+      let activeQuery = {
+        ...query,
+        status: { $ne: "rejected" },
+      };
+
       if (status && status !== "rejected") {
         activeQuery.status = status;
       }
@@ -31,7 +34,6 @@ const applicationManagementController = {
         .sort({ createdAt: -1 })
         .lean();
 
-      // Fetch rejected applications
       const RejectedApplication = (
         await import("../../models/adoption/RejectedApplication.js")
       ).default;
@@ -51,10 +53,8 @@ const applicationManagementController = {
           .lean();
       }
 
-      // Merge both datasets
       const allApplications = [...activeApplications, ...rejectedApplications];
 
-      // Group by pet
       const groupedByPet = allApplications.reduce((acc, app) => {
         const petIdStr = app.petId._id.toString();
         if (!acc[petIdStr]) {
@@ -88,7 +88,6 @@ const applicationManagementController = {
       const { applicationId } = req.params;
       const shelterId = req.userId;
 
-      // Try finding in active applications first
       let application = await AdoptionApplication.findOne({
         _id: applicationId,
         shelterId,
@@ -99,7 +98,6 @@ const applicationManagementController = {
 
       let isRejected = false;
 
-      // If not found, check rejected applications
       if (!application) {
         const RejectedApplication = (
           await import("../../models/adoption/RejectedApplication.js")
@@ -123,7 +121,6 @@ const applicationManagementController = {
         });
       }
 
-      // Get owner profile
       const ownerProfile = await OwnerProfile.findOne({
         ownerId: application.ownerId._id,
       }).lean();
@@ -169,16 +166,58 @@ const applicationManagementController = {
 
       const pet = await PetProfile.findById(application.petId).lean();
 
+      let chatRoom = await RoomChatPet.findOne({
+        petId: application.petId,
+        ownerId: application.ownerId,
+        shelterId: application.shelterId,
+      });
+
+      if (!chatRoom) {
+        chatRoom = await RoomChatPet.create({
+          ownerId: application.ownerId,
+          shelterId: application.shelterId,
+          petId: application.petId,
+          applicationId: application._id,
+          status: "open",
+        });
+      } else if (chatRoom.status === "closed") {
+        chatRoom.status = "open";
+        chatRoom.applicationId = application._id;
+        await chatRoom.save();
+      }
+
+      let meetingRoom = await RoomMeetingPet.findOne({
+        petId: application.petId,
+        ownerId: application.ownerId,
+        shelterId: application.shelterId,
+      });
+
+      if (!meetingRoom) {
+        meetingRoom = await RoomMeetingPet.create({
+          ownerId: application.ownerId,
+          shelterId: application.shelterId,
+          petId: application.petId,
+          applicationId: application._id,
+          status: "open",
+        });
+      } else if (meetingRoom.status === "closed") {
+        meetingRoom.status = "open";
+        meetingRoom.applicationId = application._id;
+        await meetingRoom.save();
+      }
+
       const ownerNotification = await Notification.create({
         userId: application.ownerId,
         userModel: "OwnerLogin",
         type: "general",
         title: "Application Under Review",
-        message: `Your application for ${pet?.name} is now being reviewed by the shelter`,
+        message: `Your application for ${pet?.name} is now being reviewed. Chat and meeting rooms have been created.`,
         metadata: {
           applicationId: application._id,
           petId: application.petId,
           shelterId,
+          chatRoomId: chatRoom._id,
+          meetingRoomId: meetingRoom._id,
         },
       });
 
@@ -193,12 +232,37 @@ const applicationManagementController = {
             read: false,
             createdAt: ownerNotification.createdAt,
           });
+
+        req.app.locals.io
+          .to(`user:${application.ownerId}`)
+          .emit("room:chat:status", {
+            chatRoomId: chatRoom._id,
+            status: "open",
+            action: "auto_created",
+            petId: application.petId,
+            timestamp: Date.now(),
+          });
+
+        req.app.locals.io
+          .to(`user:${application.ownerId}`)
+          .emit("room:meeting:status", {
+            meetingRoomId: meetingRoom._id,
+            status: "open",
+            action: "auto_created",
+            petId: application.petId,
+            timestamp: Date.now(),
+          });
       }
 
       return res.json({
         success: true,
-        message: "Application moved to review",
-        data: application,
+        message:
+          "Application moved to review. Chat and meeting rooms created automatically.",
+        data: {
+          application,
+          chatRoom,
+          meetingRoom,
+        },
       });
     } catch (error) {
       console.error("Move to review error:", error);
@@ -209,17 +273,13 @@ const applicationManagementController = {
     }
   },
 
-  rejectApplication: async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
+  rejectApplicationStatus: async (req, res) => {
     try {
       const { applicationId } = req.params;
       const { rejectionReason } = req.body;
       const shelterId = req.userId;
 
       if (!rejectionReason || rejectionReason.trim() === "") {
-        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           message: "Rejection reason is required",
@@ -230,13 +290,95 @@ const applicationManagementController = {
         _id: applicationId,
         shelterId,
         status: { $in: ["submitted", "review"] },
+      });
+
+      if (!application) {
+        return res.status(404).json({
+          success: false,
+          message: "Application not found or already processed",
+        });
+      }
+
+      application.status = "application-rejected";
+      application.rejectionReason = rejectionReason;
+      application.reviewedAt = new Date();
+      await application.save();
+
+      const pet = await PetProfile.findById(application.petId).lean();
+
+      const ownerNotification = await Notification.create({
+        userId: application.ownerId,
+        userModel: "OwnerLogin",
+        type: "general",
+        title: "Application Status Update",
+        message: `Your application for ${pet?.name} has been rejected`,
+        metadata: {
+          applicationId: application._id,
+          petId: application.petId,
+          shelterId,
+          rejectionReason,
+          status: "application-rejected",
+        },
+      });
+
+      if (req.app.locals.io) {
+        req.app.locals.io
+          .to(`user:${application.ownerId}`)
+          .emit("notification:new", {
+            _id: ownerNotification._id,
+            title: ownerNotification.title,
+            message: ownerNotification.message,
+            type: "general",
+            read: false,
+            createdAt: ownerNotification.createdAt,
+            metadata: ownerNotification.metadata,
+          });
+
+        req.app.locals.io
+          .to(`user:${application.ownerId}`)
+          .emit("application:status:updated", {
+            applicationId: application._id,
+            petId: application.petId,
+            status: "application-rejected",
+            rejectionReason,
+            timestamp: Date.now(),
+          });
+      }
+
+      return res.json({
+        success: true,
+        message: "Application rejected successfully",
+        data: application,
+      });
+    } catch (error) {
+      console.error("Reject application status error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to reject application",
+      });
+    }
+  },
+
+  deleteApplication: async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const { applicationId } = req.params;
+      const shelterId = req.userId;
+
+      const application = await AdoptionApplication.findOne({
+        _id: applicationId,
+        shelterId,
+        status: "application-rejected",
       }).session(session);
 
       if (!application) {
         await session.abortTransaction();
         return res.status(404).json({
           success: false,
-          message: "Application not found or already processed",
+          message:
+            "Application not found or cannot be deleted. Only rejected applications can be archived.",
         });
       }
 
@@ -254,13 +396,13 @@ const applicationManagementController = {
         petId: application.petId,
         applicationData: application.applicationData,
         status: "rejected",
-        rejectionReason: rejectionReason,
+        rejectionReason: application.rejectionReason || "No reason provided",
         shelterNotes: application.shelterNotes,
         scheduledMeeting: application.scheduledMeeting,
         paymentStatus: application.paymentStatus,
         agreedToTerms: application.agreedToTerms,
         submittedAt: application.submittedAt,
-        reviewedAt: new Date(),
+        reviewedAt: application.reviewedAt || new Date(),
         rejectedAt: new Date(),
       });
 
@@ -288,13 +430,13 @@ const applicationManagementController = {
             userId: application.ownerId,
             userModel: "OwnerLogin",
             type: "general",
-            title: "Application Rejected",
-            message: `Your adoption application for ${pet?.name} was not approved`,
+            title: "Application Archived",
+            message: `Your adoption application for ${pet?.name} has been archived`,
             metadata: {
               applicationId: rejectedApp._id,
               petId: application.petId,
               shelterId,
-              rejectionReason,
+              rejectionReason: application.rejectionReason,
             },
           },
         ],
@@ -319,7 +461,7 @@ const applicationManagementController = {
               senderId: shelterId,
               senderModel: "ShelterLogin",
               messageType: "system",
-              content: "❌ Application was rejected",
+              content: "❌ Application was archived",
             },
           ],
           { session }
@@ -343,25 +485,24 @@ const applicationManagementController = {
 
         req.app.locals.io
           .to(`user:${application.ownerId}`)
-          .emit("application:rejected", {
+          .emit("application:deleted", {
             applicationId: rejectedApp._id,
             petId: application.petId,
-            rejectionReason,
             timestamp: Date.now(),
           });
       }
 
       return res.json({
         success: true,
-        message: "Application rejected successfully",
+        message: "Application archived successfully",
         data: rejectedApp,
       });
     } catch (error) {
       await session.abortTransaction();
-      console.error("Reject application error:", error);
+      console.error("Delete application error:", error);
       return res.status(500).json({
         success: false,
-        message: "Failed to reject application",
+        message: "Failed to archive application",
       });
     } finally {
       session.endSession();
@@ -385,7 +526,6 @@ const applicationManagementController = {
         });
       }
 
-      // Check if room exists with same shelter + owner + pet
       const existingChat = await RoomChatPet.findOne({
         petId: application.petId,
         ownerId: application.ownerId,
@@ -397,7 +537,6 @@ const applicationManagementController = {
       let actionType = "created";
 
       if (existingChat) {
-        // Room exists - check status
         if (existingChat.status === "blocked") {
           return res.status(400).json({
             success: false,
@@ -406,12 +545,10 @@ const applicationManagementController = {
         }
 
         if (existingChat.status === "closed") {
-          // Reopen the room
           existingChat.status = "open";
           existingChat.applicationId = application._id;
           await existingChat.save();
 
-          // Create system message for reopening
           const RoomChatMessage = (
             await import("../../models/rooms/RoomChatMessage.js")
           ).default;
@@ -427,14 +564,12 @@ const applicationManagementController = {
           chatRoom = existingChat;
           actionType = "reopened";
         } else if (existingChat.status === "open") {
-          // Already open - just update applicationId if needed
           if (
             existingChat.applicationId.toString() !== application._id.toString()
           ) {
             existingChat.applicationId = application._id;
             await existingChat.save();
 
-            // Create system message for new attempt
             const RoomChatMessage = (
               await import("../../models/rooms/RoomChatMessage.js")
             ).default;
@@ -454,7 +589,6 @@ const applicationManagementController = {
           actionType = "already_exists";
         }
       } else {
-        // Create new room
         chatRoom = await RoomChatPet.create({
           ownerId: application.ownerId,
           shelterId: application.shelterId,
@@ -487,7 +621,6 @@ const applicationManagementController = {
       });
 
       if (req.app.locals.io) {
-        // Notify owner
         req.app.locals.io
           .to(`user:${application.ownerId}`)
           .emit("notification:new", {
@@ -500,7 +633,6 @@ const applicationManagementController = {
             metadata: ownerNotification.metadata,
           });
 
-        // Emit room status change
         req.app.locals.io
           .to(`user:${application.ownerId}`)
           .emit("room:chat:status", {
@@ -549,7 +681,6 @@ const applicationManagementController = {
         });
       }
 
-      // Search for existing room by petId, ownerId, shelterId
       const existingMeeting = await RoomMeetingPet.findOne({
         petId: application.petId,
         ownerId: application.ownerId,
@@ -561,7 +692,6 @@ const applicationManagementController = {
       let actionType = "created";
 
       if (existingMeeting) {
-        // Room exists - check status
         if (existingMeeting.status === "blocked") {
           return res.status(400).json({
             success: false,
@@ -570,14 +700,12 @@ const applicationManagementController = {
         }
 
         if (existingMeeting.status === "closed") {
-          // Reopen the room
           existingMeeting.status = "open";
           existingMeeting.applicationId = application._id;
           await existingMeeting.save();
           meetingRoom = existingMeeting;
           actionType = "reopened";
         } else if (existingMeeting.status === "open") {
-          // Already open - just update applicationId if needed
           if (
             existingMeeting.applicationId.toString() !==
             application._id.toString()
@@ -592,7 +720,6 @@ const applicationManagementController = {
           actionType = "already_exists";
         }
       } else {
-        // Create new room
         meetingRoom = await RoomMeetingPet.create({
           ownerId: application.ownerId,
           shelterId: application.shelterId,
@@ -625,7 +752,6 @@ const applicationManagementController = {
       });
 
       if (req.app.locals.io) {
-        // Notify owner
         req.app.locals.io
           .to(`user:${application.ownerId}`)
           .emit("notification:new", {
@@ -638,7 +764,6 @@ const applicationManagementController = {
             metadata: ownerNotification.metadata,
           });
 
-        // Emit room status change
         req.app.locals.io
           .to(`user:${application.ownerId}`)
           .emit("room:meeting:status", {
@@ -680,7 +805,6 @@ const applicationManagementController = {
         shelterId,
       }).lean();
 
-      // Also check rejected applications
       let isRejected = false;
       if (!application) {
         const RejectedApplication = (
@@ -712,7 +836,6 @@ const applicationManagementController = {
           }).lean();
         })());
 
-      // Find chat room by petId, ownerId, shelterId
       const chatRoom = await RoomChatPet.findOne({
         petId: appData.petId,
         ownerId: appData.ownerId,
@@ -800,7 +923,6 @@ const applicationManagementController = {
         shelterId,
       }).lean();
 
-      // Also check rejected applications
       let isRejected = false;
       if (!application) {
         const RejectedApplication = (
@@ -832,7 +954,6 @@ const applicationManagementController = {
           }).lean();
         })());
 
-      // Find meeting room by petId, ownerId, shelterId
       const meetingRoom = await RoomMeetingPet.findOne({
         petId: appData.petId,
         ownerId: appData.ownerId,
@@ -1025,6 +1146,34 @@ const applicationManagementController = {
       return res.status(500).json({
         success: false,
         message: "Failed to fetch meeting room status",
+      });
+    }
+  },
+
+  getArchivedApplications: async (req, res) => {
+    try {
+      const shelterId = req.userId;
+
+      const RejectedApplication = (
+        await import("../../models/adoption/RejectedApplication.js")
+      ).default;
+
+      const archivedApplications = await RejectedApplication.find({ shelterId })
+        .populate("petId", "name species breed images coverImage")
+        .populate("ownerId", "email")
+        .sort({ rejectedAt: -1 })
+        .lean();
+
+      return res.json({
+        success: true,
+        data: archivedApplications,
+        total: archivedApplications.length,
+      });
+    } catch (error) {
+      console.error("Get archived applications error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch archived applications",
       });
     }
   },

@@ -53,7 +53,7 @@ const ShelterApplicationDetail = () => {
   const [meetingRoomStatus, setMeetingRoomStatus] = useState(null);
   const [closingChat, setClosingChat] = useState(false);
   const [closingMeeting, setClosingMeeting] = useState(false);
-  // Rejection modal state
+
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedReason, setSelectedReason] = useState("");
   const [customReason, setCustomReason] = useState("");
@@ -77,7 +77,6 @@ const ShelterApplicationDetail = () => {
         setPet(res.data.data.application.petId);
         setOwnerProfile(res.data.data.ownerProfile);
 
-        // Fetch room statuses
         await fetchRoomStatuses(res.data.data.application);
       }
     } catch (err) {
@@ -90,7 +89,6 @@ const ShelterApplicationDetail = () => {
 
   const fetchRoomStatuses = async (appData) => {
     try {
-      // Check chat room status
       const chatRes = await axios
         .get(`${API_URL}/api/shelter/applications/${appData._id}/chat/status`, {
           withCredentials: true,
@@ -101,7 +99,6 @@ const ShelterApplicationDetail = () => {
         setChatRoomStatus(chatRes.data.data.status);
       }
 
-      // Check meeting room status
       const meetingRes = await axios
         .get(
           `${API_URL}/api/shelter/applications/${appData._id}/meeting/status`,
@@ -410,9 +407,7 @@ const ShelterApplicationDetail = () => {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
-            {/* Main Content - Left Side */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Pet Information */}
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Heart size={20} className="text-[#4a5568]" />
@@ -447,7 +442,6 @@ const ShelterApplicationDetail = () => {
                 </div>
               </div>
 
-              {/* Applicant Personal Information */}
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <User size={20} className="text-[#4a5568]" />
@@ -499,7 +493,6 @@ const ShelterApplicationDetail = () => {
                 </div>
               </div>
 
-              {/* Living Situation */}
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Home size={20} className="text-[#4a5568]" />
@@ -545,7 +538,6 @@ const ShelterApplicationDetail = () => {
                 </div>
               </div>
 
-              {/* Household Composition */}
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Users size={20} className="text-[#4a5568]" />
@@ -583,7 +575,6 @@ const ShelterApplicationDetail = () => {
                 </div>
               </div>
 
-              {/* Experience & Commitment */}
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Award size={20} className="text-[#4a5568]" />
@@ -645,7 +636,6 @@ const ShelterApplicationDetail = () => {
                 </div>
               </div>
 
-              {/* Adoption Details */}
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <Heart size={20} className="text-[#4a5568]" />
@@ -694,9 +684,7 @@ const ShelterApplicationDetail = () => {
               </div>
             </div>
 
-            {/* Right Sidebar */}
             <div className="space-y-6">
-              {/* Status Card */}
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                 <h3 className="text-lg font-bold text-white mb-4">
                   Application Status
@@ -742,7 +730,6 @@ const ShelterApplicationDetail = () => {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                 <h3 className="text-lg font-bold text-white mb-4">Actions</h3>
 
@@ -758,7 +745,6 @@ const ShelterApplicationDetail = () => {
                     </button>
                   )}
 
-                  {/* Chat Room Button */}
                   {chatRoomStatus === "open" ? (
                     <button
                       disabled
@@ -786,7 +772,6 @@ const ShelterApplicationDetail = () => {
                     </button>
                   )}
 
-                  {/* Meeting Room Button */}
                   {meetingRoomStatus === "open" ? (
                     <button
                       disabled
@@ -814,7 +799,6 @@ const ShelterApplicationDetail = () => {
                     </button>
                   )}
 
-                  {/* Close Buttons (show when rejected AND rooms are open) */}
                   {application.status === "rejected" &&
                     chatRoomStatus === "open" && (
                       <button
@@ -839,7 +823,6 @@ const ShelterApplicationDetail = () => {
                       </button>
                     )}
 
-                  {/* Reject Button - only show if not already rejected */}
                   {(application.status === "submitted" ||
                     application.status === "review") && (
                     <button
@@ -854,7 +837,6 @@ const ShelterApplicationDetail = () => {
                 </div>
               </div>
 
-              {/* Owner Profile Summary */}
               {ownerProfile && (
                 <div className="rounded-2xl border border-[#4a5568]/20 bg-[#31323e] p-6">
                   <h3 className="text-lg font-bold text-white mb-4">
@@ -898,7 +880,6 @@ const ShelterApplicationDetail = () => {
         </div>
       </main>
 
-      {/* Rejection Modal */}
       {showRejectModal && (
         <>
           <div
@@ -908,7 +889,6 @@ const ShelterApplicationDetail = () => {
 
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="w-full max-w-lg rounded-2xl border border-red-500/30 bg-[#31323e] shadow-2xl">
-              {/* Header */}
               <div className="flex items-center justify-between border-b border-red-500/20 px-6 py-4">
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-red-500/20 p-2">
@@ -927,14 +907,12 @@ const ShelterApplicationDetail = () => {
                 </button>
               </div>
 
-              {/* Body */}
               <div className="px-6 py-5 space-y-4">
                 <p className="text-sm text-[#bfc0d1]">
                   Please select a reason for rejection. This will be shared with
                   the applicant.
                 </p>
 
-                {/* Reason Dropdown */}
                 <div>
                   <label className="block text-sm font-semibold text-white mb-2">
                     Rejection Reason *
@@ -959,7 +937,6 @@ const ShelterApplicationDetail = () => {
                   </select>
                 </div>
 
-                {/* Custom Reason Textarea */}
                 {selectedReason === "Other" && (
                   <div>
                     <label className="block text-sm font-semibold text-white mb-2">
@@ -977,7 +954,6 @@ const ShelterApplicationDetail = () => {
                 )}
               </div>
 
-              {/* Footer */}
               <div className="flex gap-3 border-t border-red-500/20 px-6 py-4">
                 <button
                   onClick={() => setShowRejectModal(false)}
@@ -1003,7 +979,6 @@ const ShelterApplicationDetail = () => {
         </>
       )}
 
-      {/* Toast */}
       {toast && (
         <ShelterToast
           type={toast.type}

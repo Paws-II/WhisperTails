@@ -81,6 +81,12 @@ const ShelterApplications = () => {
         icon: CheckCircle,
         label: "Approved",
       },
+      "application-rejected": {
+        bg: "bg-red-500/20",
+        text: "text-red-400",
+        icon: XCircle,
+        label: "Rejected",
+      },
       rejected: {
         bg: "bg-red-500/20",
         text: "text-red-400",
@@ -99,10 +105,23 @@ const ShelterApplications = () => {
     });
   };
 
-  const filteredData = applicationsData.filter((group) => {
-    if (filterStatus === "all") return true;
-    return group.applications.some((app) => app.status === filterStatus);
-  });
+  const filteredData = applicationsData
+    .map((group) => {
+      const nonRejectedApps = group.applications.filter(
+        (app) => app.status !== "rejected"
+      );
+
+      return {
+        ...group,
+        applications: nonRejectedApps,
+      };
+    })
+    .filter((group) => {
+      if (group.applications.length === 0) return false;
+
+      if (filterStatus === "all") return true;
+      return group.applications.some((app) => app.status === filterStatus);
+    });
 
   if (loading) {
     return (
@@ -122,7 +141,6 @@ const ShelterApplications = () => {
 
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl p-4 md:p-6 lg:p-8">
-          {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-white tracking-tight mb-2">
@@ -132,7 +150,16 @@ const ShelterApplications = () => {
                 Manage and review adoption applications for your pets
               </p>
             </div>
-            <NotificationBell />
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate("/applications-shelter/archived")}
+                className="flex items-center gap-2 rounded-xl border-2 border-[#4a5568]/30 bg-[#31323e] px-4 py-2.5 text-sm font-semibold text-[#bfc0d1] transition-all hover:border-[#4a5568]/50 hover:bg-[#4a5568]/10 hover:text-white active:scale-95"
+              >
+                <FileText size={16} />
+                View Archived
+              </button>
+              <NotificationBell />
+            </div>
           </div>
 
           {/* Filter Tabs */}
@@ -142,7 +169,7 @@ const ShelterApplications = () => {
               { value: "submitted", label: "New" },
               { value: "review", label: "Under Review" },
               { value: "approved", label: "Approved" },
-              { value: "rejected", label: "Rejected" },
+              { value: "application-rejected", label: "Rejected" },
             ].map((filter) => (
               <button
                 key={filter.value}

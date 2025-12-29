@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import RoomMeetingPet from "../../models/rooms/RoomMeetingPet.js";
 import OwnerProfile from "../../models/profiles/OwnerProfile.js";
 import Notification from "../../models/notifications/Notification.js";
+import AdoptionApplication from "../../models/adoption/AdoptionApplication.js";
 
 const meetingController = {
-  // Get all eligible owners for shelter to schedule meetings with
   getEligibleOwners: async (req, res) => {
     try {
       const shelterId = req.userId;
@@ -36,7 +36,6 @@ const meetingController = {
     }
   },
 
-  // Get all meetings for shelter
   getMeetings: async (req, res) => {
     try {
       const shelterId = req.userId;
@@ -75,7 +74,6 @@ const meetingController = {
     }
   },
 
-  // Create new meeting
   createMeeting: async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -91,7 +89,6 @@ const meetingController = {
         meetingPlatform,
       } = req.body;
 
-      // Validate future time
       const scheduledDate = new Date(scheduledAt);
       if (scheduledDate <= new Date()) {
         await session.abortTransaction();
@@ -101,7 +98,6 @@ const meetingController = {
         });
       }
 
-      // Verify relationship exists
       const relationship = await RoomMeetingPet.findOne({
         shelterId,
         ownerId,
@@ -116,7 +112,6 @@ const meetingController = {
         });
       }
 
-      // Create meeting with initial status 'open'
       const meeting = new RoomMeetingPet({
         ownerId,
         shelterId,
@@ -132,16 +127,33 @@ const meetingController = {
 
       await meeting.save({ session });
 
-      // Immediately update to 'scheduled'
       meeting.status = "scheduled";
       await meeting.save({ session });
+      const currentApplication = await AdoptionApplication.findById(
+        relationship.applicationId
+      ).session(session);
 
-      // Get owner name for notification
+      if (currentApplication) {
+        const rejectedStatuses = [
+          "application-reject",
+          "video-verification-reject",
+          "final-reject",
+          "rejected",
+        ];
+
+        if (!rejectedStatuses.includes(currentApplication.status)) {
+          await AdoptionApplication.findOneAndUpdate(
+            { _id: relationship.applicationId },
+            { status: "video-verification-scheduled" },
+            { session }
+          );
+        }
+      }
+
       const ownerProfile = await OwnerProfile.findOne({ ownerId }).session(
         session
       );
 
-      // Create notification for owner
       await Notification.create(
         [
           {
@@ -162,7 +174,6 @@ const meetingController = {
 
       await session.commitTransaction();
 
-      // Send socket notification
       if (req.app.locals.io) {
         req.app.locals.io.to(`user:${ownerId}`).emit("notification:new", {
           title: "Meeting Scheduled",
@@ -197,7 +208,6 @@ const meetingController = {
     }
   },
 
-  // Update meeting (edit)
   updateMeeting: async (req, res) => {
     try {
       const { meetingId } = req.params;
@@ -223,7 +233,6 @@ const meetingController = {
         });
       }
 
-      // Validate future time if scheduledAt is being updated
       if (scheduledAt) {
         const scheduledDate = new Date(scheduledAt);
         if (scheduledDate <= new Date()) {
@@ -242,7 +251,6 @@ const meetingController = {
 
       await meeting.save();
 
-      // Notify owner
       await Notification.create({
         userId: meeting.ownerId,
         userModel: "OwnerLogin",
@@ -292,7 +300,6 @@ const meetingController = {
     }
   },
 
-  // Cancel meeting
   cancelMeeting: async (req, res) => {
     try {
       const { meetingId } = req.params;
@@ -324,7 +331,6 @@ const meetingController = {
       meeting.cancellationReason = cancellationReason;
       await meeting.save();
 
-      // Notify owner
       await Notification.create({
         userId: meeting.ownerId,
         userModel: "OwnerLogin",
@@ -363,7 +369,6 @@ const meetingController = {
     }
   },
 
-  // Mark meeting as complete
   markComplete: async (req, res) => {
     try {
       const { meetingId } = req.params;
@@ -382,7 +387,6 @@ const meetingController = {
         });
       }
 
-      // Check if meeting time has been reached (10 minutes before)
       const meetingTime = new Date(meeting.scheduledAt);
       const tenMinutesBefore = new Date(meetingTime.getTime() - 10 * 60 * 1000);
 
@@ -396,7 +400,6 @@ const meetingController = {
       meeting.status = "completed";
       await meeting.save();
 
-      // Notify owner
       await Notification.create({
         userId: meeting.ownerId,
         userModel: "OwnerLogin",
@@ -434,7 +437,6 @@ const meetingController = {
     }
   },
 
-  // Delete meeting
   deleteMeeting: async (req, res) => {
     try {
       const { meetingId } = req.params;
@@ -467,8 +469,7 @@ const meetingController = {
 
   getMeetingsByOwner: async (req, res) => {
     try {
-      const ownerId = req.userId; // From JWT token
-
+      const ownerId = req.userId;
       const meetings = await RoomMeetingPet.find({
         ownerId: ownerId,
       })
@@ -478,7 +479,6 @@ const meetingController = {
         .sort({ scheduledAt: -1 })
         .lean();
 
-      // Get shelter profiles for populated shelters
       const ShelterProfile = (
         await import("../../models/profiles/ShelterProfile.js")
       ).default;

@@ -33,6 +33,8 @@ import OwnerApplicationDetail from "./pages/Owners/OwnerApplicationDetail.jsx";
 import OwnerArchivedApplications from "./pages/Owners/OwnerArchivedApplications.jsx";
 import OwnerArchivedApplicationDetail from "./pages/Owners/OwnerArchivedApplicationDetail.jsx";
 import ShelterArchivedApplications from "./pages/Shelters/ShelterArchivedApplications.jsx";
+import OwnerPets from "./pages/Owners/OwnerPets.jsx";
+import ShelterPetManagement from "./pages/Shelters/ShelterPetManagement.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -116,6 +118,11 @@ createRoot(document.getElementById("root")).render(
           <Route
             path="/applications-shelter/archived"
             element={<ShelterArchivedApplications />}
+          />
+          <Route path="/owner-pets" element={<OwnerPets />} />
+          <Route
+            path="/shelter-pet-management"
+            element={<ShelterPetManagement />}
           />
         </Routes>
       </BrowserRouter>

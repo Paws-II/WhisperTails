@@ -49,6 +49,7 @@ const NavbarShelter = ({ onLogout }) => {
           icon: FileText,
           label: "Applications",
         },
+        { path: "/shelter-pet-management", icon: Heart, label: "Owner Pets" },
         {
           path: "/application-journey-shelter",
           icon: Route,

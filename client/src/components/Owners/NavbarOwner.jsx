@@ -47,9 +47,9 @@ const Navbar = ({ onLogout }) => {
           label: "Adopt a Pet",
         },
         {
-          path: "#",
+          path: "/owner-pets",
           icon: PlusCircle,
-          label: "Add a Pet",
+          label: "My Pets",
         },
         {
           path: "/applications-owner",

@@ -37,7 +37,7 @@ const NavbarShelter = ({ onLogout }) => {
       title: "Quick Actions",
       links: [
         { path: "/add-pet", icon: PlusCircle, label: "Add Pet" },
-        { path: "/add-store", icon: Store, label: "Add Store" },
+        // { path: "/add-store", icon: Store, label: "Add Store" },
       ],
     },
     {
@@ -55,7 +55,7 @@ const NavbarShelter = ({ onLogout }) => {
           icon: Route,
           label: "Application Journey",
         },
-        { path: "/checkup", icon: Stethoscope, label: "Checkup" },
+        // { path: "/checkup", icon: Stethoscope, label: "Checkup" },
       ],
     },
     {
@@ -76,7 +76,7 @@ const NavbarShelter = ({ onLogout }) => {
     {
       title: "Analytics & Settings",
       links: [
-        { path: "/stats", icon: TrendingUp, label: "Stats" },
+        // { path: "/stats", icon: TrendingUp, label: "Stats" },
         { path: "/shelter-update-profile", icon: Settings, label: "Settings" },
       ],
     },

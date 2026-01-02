@@ -332,7 +332,7 @@ const OwnerDashboard = () => {
                       </div>
                     </div>
 
-                    <div className="grid w-full grid-cols-2 gap-4 lg:w-[320px]">
+                    {/* <div className="grid w-full grid-cols-2 gap-4 lg:w-[320px]">
                       {[
                         ["34", "Pets Adopted"],
                         ["12", "Active Pets"],
@@ -351,11 +351,11 @@ const OwnerDashboard = () => {
                           </p>
                         </div>
                       ))}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-2">
+                {/* <div className="grid gap-6 lg:grid-cols-2">
                   <div className="rounded-2xl border border-[#60519b]/20 bg-[#31323e] p-6">
                     <div className="mb-4 flex items-center gap-3">
                       <div className="rounded-lg bg-linear-to-br from-[#60519b] to-[#7d6ab8] p-2">
@@ -405,9 +405,9 @@ const OwnerDashboard = () => {
                       ))}
                     </div>
                   </div>
-                </div>
+                </div> */}
 
-                <div className="rounded-2xl border border-[#60519b]/20 bg-[#31323e] p-6">
+                {/* <div className="rounded-2xl border border-[#60519b]/20 bg-[#31323e] p-6">
                   <div className="mb-6 flex items-center gap-3">
                     <div className="rounded-lg bg-linear-to-br from-[#60519b] to-[#7d6ab8] p-2">
                       <Calendar size={20} className="text-white" />
@@ -441,7 +441,7 @@ const OwnerDashboard = () => {
                       </div>
                     ))}
                   </div>
-                </div>
+                </div> */}
               </div>
             )}
 

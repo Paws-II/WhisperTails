@@ -49,7 +49,7 @@ const Navbar = ({ onLogout }) => {
         {
           path: "/owner-pets",
           icon: PlusCircle,
-          label: "My Pets",
+          label: "Add My Pets",
         },
         {
           path: "/applications-owner",
@@ -72,16 +72,16 @@ const Navbar = ({ onLogout }) => {
           icon: MessageSquare,
           label: "Shelter Chats",
         },
-        {
-          path: "/street-area",
-          icon: MapPin,
-          label: "Street Area",
-        },
-        {
-          path: "/ai-help",
-          icon: Sparkles,
-          label: "AI-Based Help",
-        },
+        // {
+        //   path: "/street-area",
+        //   icon: MapPin,
+        //   label: "Street Area",
+        // },
+        // {
+        //   path: "/ai-help",
+        //   icon: Sparkles,
+        //   label: "AI-Based Help",
+        // },
       ],
     },
     {
@@ -92,11 +92,11 @@ const Navbar = ({ onLogout }) => {
           icon: Calendar,
           label: "My Meetings",
         },
-        {
-          path: "/stats",
-          icon: BarChart3,
-          label: "Stats",
-        },
+        // {
+        //   path: "/stats",
+        //   icon: BarChart3,
+        //   label: "Stats",
+        // },
       ],
     },
     {

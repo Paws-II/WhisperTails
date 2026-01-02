@@ -176,7 +176,7 @@ const ShelterDashboard = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {/* <div className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 label: "Total Pets",
@@ -223,7 +223,7 @@ const ShelterDashboard = () => {
                 </div>
               );
             })}
-          </div>
+          </div> */}
 
           {/* Main Content Grid */}
           <div className="space-y-8">

@@ -23,6 +23,8 @@ import AdoptedPetCard from "../../components/Owners/MyPets/AdoptedPetCard";
 import AdoptedPetDetails from "../../components/Owners/MyPets/AdoptedPetDetails";
 import OwnerToast from "../../Common/OwnerToast";
 
+import OwnerBlogEditor from "../../components/Owners/Blog/OwnerBlogEditor";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const OwnerDashboard = () => {
@@ -182,7 +184,7 @@ const OwnerDashboard = () => {
 
           <div className="mb-8 flex justify-center">
             <div className="flex gap-2 rounded-xl bg-[#31323e] p-2 shadow-xl shadow-black/20">
-              {["profile", "mypets", "Blogs"].map((tab) => (
+              {["profile", "mypets", "blogs"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -194,6 +196,8 @@ const OwnerDashboard = () => {
                 >
                   {tab === "mypets"
                     ? "My Pets"
+                    : tab === "blogs"
+                    ? "Blogs"
                     : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
@@ -509,31 +513,9 @@ const OwnerDashboard = () => {
               </div>
             )}
 
-            {activeTab === "store" && (
-              <div className="space-y-6">
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-white">Pet Store</h2>
-                  <Package size={24} className="text-[#60519b]" />
-                </div>
-
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                    <div
-                      key={i}
-                      className="rounded-2xl border border-[#60519b]/20 bg-[#31323e] p-5 transition-all hover:border-[#60519b]/40"
-                    >
-                      <div className="mb-4 aspect-square rounded-xl bg-[#1e202c]/50" />
-                      <div className="mb-3 h-4 rounded bg-[#60519b]/20" />
-                      <div className="mb-2 h-3 rounded bg-[#60519b]/10" />
-                      <div className="mt-4 flex items-center justify-between">
-                        <div className="h-5 w-16 rounded bg-[#60519b]/20" />
-                        <button className="rounded-lg bg-[#60519b]/20 px-3 py-1 text-xs text-[#60519b] transition-colors hover:bg-[#60519b]/30">
-                          View
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {activeTab === "blogs" && (
+              <div>
+                <OwnerBlogEditor ownerName={ownerData.name} />
               </div>
             )}
           </div>
